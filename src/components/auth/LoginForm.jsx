@@ -1,15 +1,15 @@
 import { Building, Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-
 import SignupForm from '/src/components/auth/SignupForm.jsx';
 
-export  function LoginForm() {
+export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('influencer');
   const [showPassword, setShowPassword] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
 
   if (showSignup) {
@@ -18,7 +18,18 @@ export  function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password, userType);
+    setError('');
+    try {
+      await login(email, password); // removed userType
+      // Optionally redirect to dashboard here
+    } catch (err) {
+      console.error('Login submission error:', err);
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        'Login failed. Please try again.';
+      setError(msg);
+    }
   };
 
   return (
@@ -102,6 +113,10 @@ export  function LoginForm() {
               </button>
             </div>
           </div>
+
+          {error && (
+            <p className="text-center text-red-500 text-sm">{error}</p>
+          )}
 
           <button
             type="submit"

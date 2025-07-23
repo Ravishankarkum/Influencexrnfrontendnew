@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { apiService, getToken, removeToken } from '../services/api';
+import { apiService, getToken, removeToken, setToken } from '../services/api';
 
 const AuthContext = createContext(undefined);
 
@@ -8,17 +8,19 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Check for existing token on app start
+  // On app start: check token and fetch profile
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
       if (token) {
+        setToken(token); // attach to axios for all requests
         try {
           const userData = await apiService.auth.getProfile();
           setUser(userData);
         } catch (error) {
           console.error('Failed to get user profile:', error);
           removeToken();
+          setUser(null);
         }
       }
       setIsInitializing(false);
@@ -27,16 +29,17 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  const login = async (email, password, userType) => {
+  const login = async (email, password) => {
     setIsLoading(true);
     try {
-      const response = await apiService.auth.login({
-        email,
-        password,
-        userType
-      });
-      
-      setUser(response.user);
+      const response = await apiService.auth.login({ email, password });
+
+      const token = response.token; // assuming backend returns token
+      if (token) {
+        setToken(token); // store in localStorage
+      }
+
+      setUser(response.user || response); // support both structures
       return response;
     } catch (error) {
       console.error('Login error:', error);
@@ -50,7 +53,13 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     try {
       const response = await apiService.auth.register(formData);
-      setUser(response.user);
+
+      const token = response.token;
+      if (token) {
+        setToken(token);
+      }
+
+      setUser(response.user || response);
       return response;
     } catch (error) {
       console.error('Signup error:', error);
@@ -67,6 +76,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      removeToken();
       setUser(null);
       setIsLoading(false);
     }
@@ -77,15 +87,17 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      signup, 
-      logout, 
-      updateUser,
-      isLoading,
-      isInitializing
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        signup,
+        logout,
+        updateUser,
+        isLoading,
+        isInitializing
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
