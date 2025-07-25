@@ -8,7 +8,6 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // On app start: check token and fetch profile
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
@@ -16,6 +15,14 @@ export function AuthProvider({ children }) {
         setToken(token); // attach to axios for all requests
         try {
           const userData = await apiService.auth.getProfile();
+
+          // Defensive check: ensure role is present
+          if (!userData.role) {
+            console.warn("Fetched user missing role, assigning 'influencer' by default.");
+            userData.role = 'influencer';
+          }
+
+          console.log("Fetched user on refresh:", userData);
           setUser(userData);
         } catch (error) {
           console.error('Failed to get user profile:', error);
@@ -34,12 +41,19 @@ export function AuthProvider({ children }) {
     try {
       const response = await apiService.auth.login({ email, password });
 
-      const token = response.token; // assuming backend returns token
+      const token = response.token;
       if (token) {
-        setToken(token); // store in localStorage
+        setToken(token);
       }
 
-      setUser(response.user || response); // support both structures
+      // Defensive structure fix
+      const loggedInUser = response.user || response;
+      if (!loggedInUser.role) {
+        console.warn("Login response missing role, assigning 'influencer' by default.");
+        loggedInUser.role = 'influencer';
+      }
+
+      setUser(loggedInUser);
       return response;
     } catch (error) {
       console.error('Login error:', error);
@@ -59,7 +73,13 @@ export function AuthProvider({ children }) {
         setToken(token);
       }
 
-      setUser(response.user || response);
+      const registeredUser = response.user || response;
+      if (!registeredUser.role) {
+        console.warn("Signup response missing role, assigning 'influencer' by default.");
+        registeredUser.role = 'influencer';
+      }
+
+      setUser(registeredUser);
       return response;
     } catch (error) {
       console.error('Signup error:', error);

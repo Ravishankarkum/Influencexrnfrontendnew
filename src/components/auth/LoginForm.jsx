@@ -1,5 +1,6 @@
 import { Building, Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import SignupForm from '/src/components/auth/SignupForm.jsx';
 
@@ -10,7 +11,9 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [error, setError] = useState('');
+
   const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   if (showSignup) {
     return <SignupForm onBackToLogin={() => setShowSignup(false)} />;
@@ -19,9 +22,25 @@ export function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     try {
-      await login(email, password); // removed userType
-      // Optionally redirect to dashboard here
+      /**
+       * If your backend expects userType during login, you need to include it.
+       * Otherwise, remove `userType` below and keep only email, password.
+       */
+      const response = await login(email, password);
+
+      console.log("✅ Logged in user data:", response.user || response);
+
+      const userData = response.user || response;
+
+      if (userData.role === 'brand') {
+        navigate('/brand-dashboard');
+      } else if (userData.role === 'influencer') {
+        navigate('/influencer-dashboard');
+      } else {
+        navigate('/'); // fallback
+      }
     } catch (err) {
       console.error('Login submission error:', err);
       const msg =
@@ -129,7 +148,7 @@ export function LoginForm() {
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Don't have an account?{' '}
-          <button 
+          <button
             onClick={() => setShowSignup(true)}
             className="text-purple-600 hover:text-purple-700 font-medium"
           >

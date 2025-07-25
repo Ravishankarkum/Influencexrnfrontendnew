@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Analytics } from './components/analytics/Analytics';
 import { LoginForm } from './components/auth/LoginForm';
 import { CampaignDiscovery } from './components/campaigns/CampaignDiscovery';
@@ -24,13 +24,20 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+ console.log('🪐 user:', user);
+  console.log('🪐 isInitializing:', isInitializing);
 
-  // Show loading spinner while initializing auth
+  // Ensure hook is unconditional; logic inside:
+  useEffect(() => {
+    if (user) {
+      setActiveSection('dashboard');
+    }
+  }, [user]);
+
   if (isInitializing) {
     return <PageLoader />;
   }
 
-  // Show landing page if no user and neither login nor signup requested
   if (!user && !showLogin && !showSignup) {
     return (
       <LandingPage 
@@ -40,7 +47,6 @@ function AppContent() {
     );
   }
 
-  // Show login/signup forms if no user but requested
   if (!user && (showLogin || showSignup)) {
     return <LoginForm />;
   }
@@ -50,9 +56,13 @@ function AppContent() {
   };
 
   const renderContent = () => {
+    if (!user) {
+    return <PageLoader />;
+  }
+   const isBrand = user?.role === 'brand';
     switch (activeSection) {
       case 'dashboard':
-        return user.userType === 'brand' ? <BrandDashboard /> : <InfluencerDashboard />;
+        return user.role === 'brand' ? (<BrandDashboard />) : (<InfluencerDashboard />);
       case 'discover':
         return <CampaignDiscovery />;
       case 'create-campaign':
@@ -72,39 +82,36 @@ function AppContent() {
       case 'settings':
         return <Settings />;
       case 'profile':
-        return user.userType === 'influencer' ? (
+        return user.role === 'influencer' ? (
           <InfluencerProfile 
             influencer={user} 
             onUpdate={(updatedData) => {
-              // Update user profile logic here
               console.log('Profile updated:', updatedData);
-            }} 
+            }}
           />
         ) : <Settings />;
       default:
-        return user.userType === 'brand' ? <BrandDashboard /> : <InfluencerDashboard />;
+        return isBrand ? <BrandDashboard /> : <InfluencerDashboard />;
     }
   };
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar 
+      <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         isOpen={isSidebarOpen}
       />
-      
-      {/* Overlay for mobile */}
+
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-        
         <main className="flex-1 overflow-auto p-6">
           {renderContent()}
         </main>

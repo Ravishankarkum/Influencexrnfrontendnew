@@ -1,5 +1,4 @@
-import React from 'react';
-import { User, LogOut, Bell, Menu, X } from 'lucide-react';
+import { Bell, LogOut, Menu, User, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function Header({ isSidebarOpen, toggleSidebar }) {
@@ -16,7 +15,7 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
             {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <h1 className="text-xl font-semibold text-gray-900">
-            {user?.userType === 'brand' ? 'Brand Dashboard' : 'Influencer Dashboard'}
+            {user?.userType === 'brand' ? 'Brand Dashboard' : ''}
           </h1>
         </div>
 
