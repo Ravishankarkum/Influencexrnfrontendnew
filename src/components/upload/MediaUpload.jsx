@@ -21,7 +21,6 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files);
     }
@@ -45,7 +44,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       // Validate file type
       if (!file.type.match(acceptedTypes.replace(/\*/g, ''))) {
         alert(`File type ${file.type} not supported`);
@@ -58,28 +57,40 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
         continue;
       }
 
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      
-      // Simulate upload process
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const uploadedFile = {
-        id: Date.now() + i,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: previewUrl,
-        uploadedAt: new Date().toISOString()
-      };
+      const formData = new FormData();
+      formData.append("media", file);
 
-      newFiles.push(uploadedFile);
+      try {
+        const response = await fetch("https://influencexrn-01.onrender.com/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Upload failed");
+        }
+
+        const data = await response.json();
+
+        const uploadedFile = {
+          id: Date.now() + i,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: data.url,
+          uploadedAt: new Date().toISOString()
+        };
+
+        newFiles.push(uploadedFile);
+      } catch (err) {
+        console.error("Error uploading file:", err);
+      }
     }
 
     const updatedFiles = [...uploadedFiles, ...newFiles];
     setUploadedFiles(updatedFiles);
     setUploading(false);
-    
+
     if (onUpload) {
       onUpload(updatedFiles);
     }
@@ -129,7 +140,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
           onChange={handleChange}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
-        
+
         <div className="space-y-4">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto">
             {uploading ? (
@@ -138,7 +149,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
               <Upload size={32} className="text-white" />
             )}
           </div>
-          
+
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {uploading ? 'Uploading...' : 'Upload Media Files'}
@@ -150,7 +161,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
               Supports images and videos up to 10MB each. Maximum {maxFiles} files.
             </p>
           </div>
-          
+
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -182,12 +193,12 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
                   <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                 </div>
-                
+
                 <button
                   onClick={() => removeFile(file.id)}
                   className="flex-shrink-0 p-1 text-red-500 hover:text-red-700 transition-colors"

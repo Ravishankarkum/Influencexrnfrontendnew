@@ -7,7 +7,7 @@ import { MyCampaigns } from './components/campaigns/MyCampaigns';
 import { CollaborationManager } from './components/collaborations/CollaborationManager';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { PageLoader } from './components/common/LoadingSpinner';
-import { BrandDashboard } from './components/dashboard/brand/BrandDashboard';
+import BrandDashboard from './components/dashboard/brand/BrandDashboard';
 import { InfluencerDashboard } from './components/dashboard/influencer/InfluencerDashboard';
 import { EarningsTracker } from './components/earnings/EarningsTracker';
 import { InfluencerDirectory } from './components/influencers/InfluencerDirectory';
@@ -24,25 +24,20 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
- console.log('🪐 user:', user);
-  console.log('🪐 isInitializing:', isInitializing);
 
-  // Ensure hook is unconditional; logic inside:
   useEffect(() => {
     if (user) {
       setActiveSection('dashboard');
     }
   }, [user]);
 
-  if (isInitializing) {
-    return <PageLoader />;
-  }
+  if (isInitializing) return <PageLoader />;
 
   if (!user && !showLogin && !showSignup) {
     return (
       <LandingPage 
         onGetStarted={() => setShowLogin(true)} 
-        onSignUp={() => setShowSignup(true)}
+        onSignUp={() => setShowSignup(true)} 
       />
     );
   }
@@ -51,18 +46,15 @@ function AppContent() {
     return <LoginForm />;
   }
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const renderContent = () => {
-    if (!user) {
-    return <PageLoader />;
-  }
-   const isBrand = user?.role === 'brand';
+    if (!user) return <PageLoader />;
+    const isBrand = user?.role === 'brand';
+
     switch (activeSection) {
       case 'dashboard':
-        return user.role === 'brand' ? (<BrandDashboard />) : (<InfluencerDashboard />);
+        return isBrand ? <BrandDashboard /> : <InfluencerDashboard />;
       case 'discover':
         return <CampaignDiscovery />;
       case 'create-campaign':
@@ -83,13 +75,15 @@ function AppContent() {
         return <Settings />;
       case 'profile':
         return user.role === 'influencer' ? (
-          <InfluencerProfile 
-            influencer={user} 
+          <InfluencerProfile
+            influencer={user}
             onUpdate={(updatedData) => {
               console.log('Profile updated:', updatedData);
             }}
           />
-        ) : <Settings />;
+        ) : (
+          <Settings />
+        );
       default:
         return isBrand ? <BrandDashboard /> : <InfluencerDashboard />;
     }
@@ -112,9 +106,7 @@ function AppContent() {
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-auto p-6">
-          {renderContent()}
-        </main>
+        <main className="flex-1 overflow-auto p-6">{renderContent()}</main>
       </div>
     </div>
   );

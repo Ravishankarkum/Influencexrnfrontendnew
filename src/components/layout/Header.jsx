@@ -15,7 +15,7 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
             {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <h1 className="text-xl font-semibold text-gray-900">
-            {user?.userType === 'brand' ? 'Brand Dashboard' : ''}
+            {user?.role === 'brand' ? 'Brand Dashboard' : 'Influencer Dashboard'}
           </h1>
         </div>
 
@@ -26,14 +26,14 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
               3
             </span>
           </button>
-          
+
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
               <User size={16} className="text-white" />
             </div>
             <div className="hidden md:block">
               <p className="text-sm font-medium text-gray-900">{user?.email}</p>
-              <p className="text-xs text-gray-500 capitalize">{user?.userType}</p>
+              <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
             </div>
           </div>
 
