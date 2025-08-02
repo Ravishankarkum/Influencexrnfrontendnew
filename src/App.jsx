@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+
 import { Analytics } from './components/analytics/Analytics';
 import { LoginForm } from './components/auth/LoginForm';
 import { CampaignDiscovery } from './components/campaigns/CampaignDiscovery';
@@ -8,6 +10,7 @@ import { CollaborationManager } from './components/collaborations/CollaborationM
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { PageLoader } from './components/common/LoadingSpinner';
 import BrandDashboard from './components/dashboard/brand/BrandDashboard';
+import { ApplyForm } from './components/dashboard/influencer/ApplyForm';
 import { InfluencerDashboard } from './components/dashboard/influencer/InfluencerDashboard';
 import { EarningsTracker } from './components/earnings/EarningsTracker';
 import { InfluencerDirectory } from './components/influencers/InfluencerDirectory';
@@ -116,7 +119,10 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <AppContent />
+        <Routes>
+          <Route path="/apply/:campaignId" element={<ApplyForm />} />
+          <Route path="*" element={<AppContent />} />
+        </Routes>
       </AuthProvider>
     </ErrorBoundary>
   );

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Search, Filter, Calendar, Users } from 'lucide-react';
+import { Calendar, Filter, Search, Users } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CampaignStatus } from '../../types';
 
 export function CampaignDiscovery() {
@@ -51,8 +52,9 @@ export function CampaignDiscovery() {
   const categories = ['all', 'Fashion', 'Technology', 'Health & Fitness', 'Food', 'Travel', 'Lifestyle'];
 
   const filteredCampaigns = mockCampaigns.filter(campaign => {
-    const matchesSearch = campaign.campaign_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         campaign.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      campaign.campaign_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      campaign.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || campaign.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -77,7 +79,7 @@ export function CampaignDiscovery() {
               className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
           </div>
-          
+
           <div className="flex items-center gap-3">
             <Filter size={20} className="text-gray-400" />
             <select
@@ -136,13 +138,13 @@ export function CampaignDiscovery() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-blue-600 transition-all">
+            <div className="flex">
+              <Link
+                to={`/apply/${campaign.id}`}
+                className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 rounded-lg font-medium text-center hover:from-purple-600 hover:to-blue-600 transition-all"
+              >
                 Apply Now
-              </button>
-              <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                Save
-              </button>
+              </Link>
             </div>
           </div>
         ))}

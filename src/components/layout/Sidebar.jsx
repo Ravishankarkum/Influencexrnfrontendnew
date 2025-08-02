@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  Lamp as Campaign,
   FileText,
   Home,
   MessageSquare,
@@ -9,7 +8,7 @@ import {
   Settings,
   TrendingUp,
   Users,
-  Wallet,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -28,7 +27,7 @@ export function Sidebar({ isOpen, activeSection, setActiveSection }) {
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
     { id: 'profile', icon: Users, label: 'My Profile' },
     { id: 'discover', icon: Search, label: 'Discover Campaigns' },
-    { id: 'my-campaigns', icon: Campaign, label: 'My Applications' },
+    // { id: 'my-campaigns', icon: Campaign, label: 'My Applications' },
     { id: 'collaborations', icon: MessageSquare, label: 'Active Projects' },
     { id: 'earnings', icon: Wallet, label: 'Earnings' },
     { id: 'analytics', icon: TrendingUp, label: 'Analytics' },

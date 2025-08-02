@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BarChart3, TrendingUp, Users, Eye, Heart, MessageCircle, Calendar, DollarSign } from 'lucide-react';
+import { BarChart3, DollarSign, Eye, Heart, MessageCircle, TrendingUp, Users } from 'lucide-react';
+import { useState } from 'react';
 
 export function Analytics() {
   const [timeRange, setTimeRange] = useState('30d');
@@ -41,18 +41,7 @@ export function Analytics() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Analytics Dashboard</h2>
           <p className="text-gray-600">Track your campaign performance and ROI</p>
         </div>
-        <div className="flex gap-3">
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="1y">Last year</option>
-          </select>
-        </div>
+        
       </div>
 
       {/* Overview Stats */}
