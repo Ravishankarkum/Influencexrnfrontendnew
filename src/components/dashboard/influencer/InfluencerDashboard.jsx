@@ -1,6 +1,14 @@
-import { Star } from 'lucide-react';
+import { Clock, DollarSign, MessageSquare, Star, Target } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+
+// Icon mapping
+const iconMap = {
+  DollarSign,
+  MessageSquare,
+  Clock,
+  Target,
+};
 
 export function InfluencerDashboard() {
   const { user } = useAuth();
@@ -9,7 +17,7 @@ export function InfluencerDashboard() {
   const [recentEarnings, setRecentEarnings] = useState([]);
   const [profileStats, setProfileStats] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // Add error state
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -86,20 +94,23 @@ export function InfluencerDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-lg ${stat.color}`}>
-                <stat.icon size={24} className="text-white" />
+        {stats.map((stat, index) => {
+          const Icon = iconMap[stat.icon];
+          return (
+            <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-lg ${stat.color}`}>
+                  {Icon && <Icon size={24} className="text-white" />}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+                <p className="text-2xl font-bold text-gray-900 mb-2">{stat.value}</p>
+                <p className="text-sm text-gray-500">{stat.change}</p>
               </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-              <p className="text-2xl font-bold text-gray-900 mb-2">{stat.value}</p>
-              <p className="text-sm text-gray-500">{stat.change}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Profile Overview */}
