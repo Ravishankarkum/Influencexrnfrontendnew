@@ -128,21 +128,23 @@ export default function SignupForm({ onBackToLogin }) {
 
   const renderStep1 = () => (
     <div className="space-y-4">
-      <div className="flex bg-gray-100 rounded-xl p-1">
+      <div className="flex bg-neutral-100 rounded-xl p-1">
         <button
           type="button"
           onClick={() => handleInputChange('userType', 'influencer')}
-          className={`flex-1 py-2 rounded-lg font-medium ${formData.userType === 'influencer' ? 'bg-white text-purple-600 shadow' : 'text-gray-600'}`}
+          className="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all"
+          style={formData.userType === 'influencer' ? { backgroundColor: '#00FFFF', color: '#0A192F' } : { color: '#666666' }}
         >
-          <User size={16} className="inline mr-1" />
+          <User size={16} />
           Influencer
         </button>
         <button
           type="button"
           onClick={() => handleInputChange('userType', 'brand')}
-          className={`flex-1 py-2 rounded-lg font-medium ${formData.userType === 'brand' ? 'bg-white text-purple-600 shadow' : 'text-gray-600'}`}
+          className="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all"
+          style={formData.userType === 'brand' ? { backgroundColor: '#00FFFF', color: '#0A192F' } : { color: '#666666' }}
         >
-          <Building size={16} className="inline mr-1" />
+          <Building size={16} />
           Brand
         </button>
       </div>
@@ -290,33 +292,40 @@ export default function SignupForm({ onBackToLogin }) {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
-      <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 w-full max-w-xl">
-        <h2 className="text-2xl font-bold mb-4 text-center">Create your {formData.userType} account</h2>
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+      <div className="card p-8 w-full max-w-xl">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={{ backgroundColor: '#00FFFF' }}>
+            <span className="font-bold text-2xl" style={{ color: '#0A192F' }}>I</span>
+          </div>
+          <h2 className="text-2xl font-display font-bold mb-2" style={{ color: '#0A192F' }}>
+            Create your {formData.userType} account
+          </h2>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
           <div className="flex gap-4">
             {currentStep > 1 && (
-              <button type="button" onClick={prevStep} className="flex-1 border p-3 rounded-xl">
+              <button type="button" onClick={prevStep} className="btn-secondary flex-1 p-3">
                 Previous
               </button>
             )}
             {currentStep < 3 ? (
-              <button type="button" onClick={nextStep} className="flex-1 bg-purple-600 text-white p-3 rounded-xl">
+              <button type="button" onClick={nextStep} className="btn-primary flex-1 p-3">
                 Next
               </button>
             ) : (
-              <button type="submit" disabled={isLoading} className="flex-1 bg-purple-600 text-white p-3 rounded-xl disabled:opacity-50">
+              <button type="submit" disabled={isLoading} className="btn-primary flex-1 p-3 disabled:opacity-50">
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             )}
           </div>
         </form>
-        <p className="text-center mt-4 text-sm">
+        <p className="text-center mt-4 text-sm" style={{ color: '#222222' }}>
           Already have an account?{' '}
-          <button onClick={onBackToLogin} className="text-purple-600 underline">
+          <button onClick={onBackToLogin} className="font-semibold transition-colors" style={{ color: '#00FFFF' }}>
             Sign in
           </button>
         </p>
