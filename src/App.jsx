@@ -93,7 +93,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-white">
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -102,14 +102,14 @@ function AppContent() {
 
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+          className="fixed inset-0 bg-primary-500/90 backdrop-blur-sm z-10 lg:hidden animate-fade-in"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-auto p-6">{renderContent()}</main>
+        <main className="flex-1 overflow-auto p-8 scrollbar-thin">{renderContent()}</main>
       </div>
     </div>
   );
