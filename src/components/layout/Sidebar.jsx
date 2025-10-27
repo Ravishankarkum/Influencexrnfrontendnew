@@ -38,36 +38,46 @@ export function Sidebar({ isOpen, activeSection, setActiveSection }) {
 
   return (
     <aside
-      className={`bg-white shadow-lg border-r border-gray-200 transition-all duration-300 z-20
+      className={`shadow-lg border-r transition-all duration-300 z-20
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 fixed lg:relative h-full w-64`}
+        lg:translate-x-0 fixed lg:relative h-full w-72`}
+      style={{ backgroundColor: '#0A192F', borderColor: '#0A192F' }}
     >
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-lg">I</span>
+      <div className="p-8 h-full flex flex-col">
+        <div className="flex items-center gap-3 mb-12 cursor-pointer">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: '#00FFFF' }}>
+            <span className="font-bold text-xl" style={{ color: '#0A192F' }}>I</span>
           </div>
-          <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-display font-bold" style={{ color: '#00FFFF' }}>
             InfluenceXrN
           </h2>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="space-y-2 flex-1">
           {menuItems.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
               onClick={() => setActiveSection(id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+              className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-300 group
                 ${activeSection === id
-                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
+                  ? 'text-primary-500'
+                  : 'text-white/70 hover:text-white'}
               `}
+              style={activeSection === id ? { backgroundColor: '#00FFFF', color: '#0A192F' } : {}}
             >
-              <Icon size={20} />
-              <span className="font-medium">{label}</span>
+              <Icon size={22} />
+              <span className="font-medium text-base">{label}</span>
             </button>
           ))}
         </nav>
+
+        <div className="mt-8 p-5 rounded-2xl border" style={{ backgroundColor: '#0A192F', borderColor: '#00FFFF' }}>
+          <p className="text-sm font-medium text-white mb-2">Need Help?</p>
+          <p className="text-xs mb-4" style={{ color: '#ffffff99' }}>Contact our support team</p>
+          <button className="w-full btn-primary text-sm py-2">
+            Get Support
+          </button>
+        </div>
       </div>
     </aside>
   );
