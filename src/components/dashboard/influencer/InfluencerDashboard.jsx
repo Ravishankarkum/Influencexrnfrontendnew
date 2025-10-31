@@ -1,6 +1,7 @@
 import { Clock, DollarSign, MessageSquare, Star, Target } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { apiService } from '../../../services/api';
 
 const iconMap = {
   DollarSign,
@@ -20,31 +21,29 @@ export function InfluencerDashboard() {
 
   useEffect(() => {
     const fetchDashboard = async () => {
-      if (!user?._id || !user?.token) {
+      if (!user) {
         setLoading(false);
         setError("Unauthorized: User not found");
         return;
       }
 
       try {
-        const response = await fetch(`/api/dashboard`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        setLoading(true);
+        // Use the API service instead of direct fetch
+        const data = await apiService.dashboard.getInfluencerDashboard();
         setStats(data?.stats || []);
         setActiveCampaigns(data?.activeCampaigns || []);
         setRecentEarnings(data?.recentEarnings || []);
         setProfileStats(data?.profileStats || {});
+        setError(null);
       } catch (err) {
         console.error('Error loading influencer dashboard:', err);
-        setError(err.message);
+        setError(err.message || 'Failed to load dashboard');
+        // Set default empty values to prevent unhandled exceptions
+        setStats([]);
+        setActiveCampaigns([]);
+        setRecentEarnings([]);
+        setProfileStats({});
       } finally {
         setLoading(false);
       }

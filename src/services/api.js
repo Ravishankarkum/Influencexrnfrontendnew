@@ -41,8 +41,19 @@ const apiRequest = async (endpoint, options = {}) => {
       let errorData = {};
       if (contentType.includes('application/json')) {
         errorData = await response.json();
+      } else {
+        // If not JSON, try to get text
+        const text = await response.text();
+        errorData = { message: text || `HTTP error! status: ${response.status}` };
       }
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      
+      // Create error object with response data
+      const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      error.response = {
+        status: response.status,
+        data: errorData
+      };
+      throw error;
     }
 
     if (contentType.includes('application/json')) {

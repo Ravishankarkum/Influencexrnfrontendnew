@@ -16,10 +16,18 @@ export function AuthProvider({ children }) {
         try {
           const userData = await apiService.auth.getProfile();
 
-          // Defensive check: ensure role is present
+          console.log("=== PROFILE FETCH DEBUG INFO ===");
+          console.log("Raw profile data:", JSON.stringify(userData, null, 2));
+          console.log("Profile role:", userData?.role);
+          console.log("==============================");
+          
+          // Defensive check: ensure role is present and normalized
           if (!userData.role) {
             console.warn("Fetched user missing role, assigning 'influencer' by default.");
             userData.role = 'influencer';
+          } else {
+            // Normalize the role
+            userData.role = userData.role.toString().trim().toLowerCase();
           }
 
           console.log("Fetched user on refresh:", userData);
@@ -36,10 +44,11 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, userType = null) => {
     setIsLoading(true);
     try {
-      const response = await apiService.auth.login({ email, password });
+      // Pass both email, password, and optionally userType
+      const response = await apiService.auth.login({ email, password, userType });
 
       const token = response.token;
       if (token) {
@@ -48,11 +57,22 @@ export function AuthProvider({ children }) {
 
       // Defensive structure fix
       const loggedInUser = response.user || response;
+      console.log("=== LOGIN RESPONSE DEBUG INFO ===");
+      console.log("Raw login response:", JSON.stringify(response, null, 2));
+      console.log("Extracted user data:", JSON.stringify(loggedInUser, null, 2));
+      console.log("Login response role:", loggedInUser?.role);
+      console.log("===============================");
+      
+      // Ensure role is present and normalized
       if (!loggedInUser.role) {
         console.warn("Login response missing role, assigning 'influencer' by default.");
         loggedInUser.role = 'influencer';
+      } else {
+        // Normalize the role
+        loggedInUser.role = loggedInUser.role.toString().trim().toLowerCase();
       }
 
+      console.log("Final user object with normalized role:", loggedInUser);
       setUser(loggedInUser);
       return response;
     } catch (error) {
@@ -74,11 +94,22 @@ export function AuthProvider({ children }) {
       }
 
       const registeredUser = response.user || response;
+      console.log("=== SIGNUP RESPONSE DEBUG INFO ===");
+      console.log("Raw signup response:", JSON.stringify(response, null, 2));
+      console.log("Extracted user data:", JSON.stringify(registeredUser, null, 2));
+      console.log("Signup response role:", registeredUser?.role);
+      console.log("================================");
+      
+      // Ensure role is present and normalized
       if (!registeredUser.role) {
         console.warn("Signup response missing role, assigning 'influencer' by default.");
         registeredUser.role = 'influencer';
+      } else {
+        // Normalize the role
+        registeredUser.role = registeredUser.role.toString().trim().toLowerCase();
       }
 
+      console.log("Final user object with normalized role:", registeredUser);
       setUser(registeredUser);
       return response;
     } catch (error) {

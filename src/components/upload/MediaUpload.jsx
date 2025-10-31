@@ -1,5 +1,6 @@
 import { Camera, FileText, Image, Upload, Video, X } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { API_CONFIG, createApiUrl } from '../../config/api.js';
 
 export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFiles = 5, existingFiles = [] }) {
   const [dragActive, setDragActive] = useState(false);
@@ -61,7 +62,9 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
       formData.append("media", file);
 
       try {
-        const response = await fetch("https://influencexrn-01.onrender.com/api/upload", {
+        // Use the API configuration instead of hardcoded URL
+        const uploadUrl = createApiUrl(API_CONFIG.ENDPOINTS.UPLOADS.BASE);
+        const response = await fetch(uploadUrl, {
           method: "POST",
           body: formData,
         });

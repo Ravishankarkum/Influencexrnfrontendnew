@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Shield, Star, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, Handshake, Play, Shield, Star, TrendingUp, Users } from 'lucide-react';
 
 export function LandingPage({ onGetStarted, onSignUp }) {
   const features = [
@@ -23,7 +23,7 @@ export function LandingPage({ onGetStarted, onSignUp }) {
     {
       name: 'Sarah Johnson',
       role: 'Fashion Influencer',
-      content: 'InfluenceXrN helped me find amazing brand partnerships that align perfectly with my audience.',
+      content: 'Collabify helped me find amazing brand partnerships that align perfectly with my audience.',
       rating: 5,
       avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'
     },
@@ -58,10 +58,10 @@ export function LandingPage({ onGetStarted, onSignUp }) {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3 cursor-pointer">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md" style={{ backgroundColor: '#00FFFF' }}>
-                <span className="font-bold text-xl" style={{ color: '#0A192F' }}>I</span>
+                <Handshake size={24} style={{ color: '#0A192F' }} />
               </div>
               <span className="text-2xl font-display font-bold gradient-text">
-                InfluenceXrN
+                Collabify
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -296,9 +296,9 @@ export function LandingPage({ onGetStarted, onSignUp }) {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#00FFFF' }}>
-                  <span className="font-bold" style={{ color: '#0A192F' }}>I</span>
+                  <Handshake size={16} style={{ color: '#0A192F' }} />
                 </div>
-                <span className="text-lg font-display font-bold" style={{ color: '#00FFFF' }}>InfluenceXrN</span>
+                <span className="text-lg font-display font-bold" style={{ color: '#00FFFF' }}>Collabify</span>
               </div>
               <p style={{ color: '#ffffff99' }}>
                 Connecting brands with influencers for authentic partnerships.
@@ -337,7 +337,7 @@ export function LandingPage({ onGetStarted, onSignUp }) {
           </div>
           
           <div className="mt-8 pt-8 text-center" style={{ borderTop: '1px solid #ffffff22', color: '#ffffff99' }}>
-            <p>&copy; 2024 InfluenceXrN. All rights reserved.</p>
+            <p>&copy; 2024 Collabify. All rights reserved.</p>
           </div>
         </div>
       </footer>

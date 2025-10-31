@@ -1,6 +1,7 @@
 import {
   BarChart3,
   FileText,
+  Handshake,
   Home,
   MessageSquare,
   Plus,
@@ -12,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
-export function Sidebar({ isOpen, activeSection, setActiveSection }) {
+export function Sidebar({ isOpen, activeSection, setActiveSection, goToLanding }) {
   const { user } = useAuth();
 
   const brandMenuItems = [
@@ -44,12 +45,13 @@ export function Sidebar({ isOpen, activeSection, setActiveSection }) {
       style={{ backgroundColor: '#0A192F', borderColor: '#0A192F' }}
     >
       <div className="p-8 h-full flex flex-col">
-        <div className="flex items-center gap-3 mb-12 cursor-pointer">
+        {/* Made the logo container clickable to go to landing page */}
+        <div className="flex items-center gap-3 mb-12 cursor-pointer" onClick={goToLanding}>
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: '#00FFFF' }}>
-            <span className="font-bold text-xl" style={{ color: '#0A192F' }}>I</span>
+            <Handshake size={24} style={{ color: '#0A192F' }} />
           </div>
           <h2 className="text-2xl font-display font-bold" style={{ color: '#00FFFF' }}>
-            InfluenceXrN
+            Collabify
           </h2>
         </div>
 

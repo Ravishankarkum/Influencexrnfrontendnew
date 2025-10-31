@@ -19,7 +19,30 @@ import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { InfluencerProfile } from './components/profile/InfluencerProfile';
 import { Settings } from './components/settings/Settings';
+import SignupForm from './components/auth/SignupForm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+// Helper function to determine if user is a brand
+const isBrandUser = (user) => {
+  if (!user || !user.role) return false;
+  
+  // Normalize the role
+  const normalizedRole = user.role.toString().trim().toLowerCase();
+  console.log("Normalized role for brand check:", normalizedRole);
+  
+  return normalizedRole === 'brand';
+};
+
+// Helper function to determine if user is an influencer
+const isInfluencerUser = (user) => {
+  if (!user || !user.role) return true; // default to influencer
+  
+  // Normalize the role
+  const normalizedRole = user.role.toString().trim().toLowerCase();
+  console.log("Normalized role for influencer check:", normalizedRole);
+  
+  return normalizedRole === 'influencer' || normalizedRole === 'admin';
+};
 
 function AppContent() {
   const { user, isInitializing } = useAuth();
@@ -31,8 +54,23 @@ function AppContent() {
   useEffect(() => {
     if (user) {
       setActiveSection('dashboard');
+      console.log("=== USER AUTHENTICATION DEBUG INFO ===");
+      console.log("Full user object:", JSON.stringify(user, null, 2));
+      console.log("User role:", user?.role);
+      console.log("User role type:", typeof user?.role);
+      console.log("User role length:", user?.role?.length);
+      if (user?.role) {
+        console.log("User role char codes:", [...user.role].map(c => c.charCodeAt(0)));
+      }
+      console.log("=====================================");
     }
   }, [user]);
+
+  // Function to reset to landing page
+  const goToLanding = () => {
+    setShowLogin(false);
+    setShowSignup(false);
+  };
 
   if (isInitializing) return <PageLoader />;
 
@@ -45,19 +83,60 @@ function AppContent() {
     );
   }
 
-  if (!user && (showLogin || showSignup)) {
-    return <LoginForm />;
+  if (!user && showSignup) {
+    return <SignupForm 
+      onBackToLogin={() => {
+        setShowSignup(false);
+        setShowLogin(true);
+      }}
+      onBackToLanding={goToLanding}
+    />;
+  }
+
+  if (!user && showLogin) {
+    return <LoginForm 
+      onSignupClick={() => {
+        setShowLogin(false);
+        setShowSignup(true);
+      }}
+      onBackToLanding={goToLanding}
+    />;
   }
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const renderContent = () => {
     if (!user) return <PageLoader />;
-    const isBrand = user?.role === 'brand';
-
+    
+    // Determine user type with explicit checks
+    const isBrand = isBrandUser(user);
+    const isInfluencer = isInfluencerUser(user);
+    
+    console.log("=== DASHBOARD RENDERING DEBUG INFO ===");
+    console.log("User role:", user?.role);
+    console.log("Is brand user (helper):", isBrand);
+    console.log("Is influencer user (helper):", isInfluencer);
+    console.log("Component to render:", isBrand ? "BrandDashboard" : "InfluencerDashboard");
+    console.log("=====================================");
+    
+    // TEMPORARY OVERRIDE FOR DEBUGGING - Remove this in production
+    // Force influencer dashboard for testing
+    // const forceInfluencer = true; // Set to false to test brand dashboard
+    // if (forceInfluencer) {
+    //   console.log("FORCING INFLUENCER DASHBOARD (DEBUG MODE)");
+    //   return <InfluencerDashboard />;
+    // }
+    
     switch (activeSection) {
       case 'dashboard':
-        return isBrand ? <BrandDashboard /> : <InfluencerDashboard />;
+        // Force the correct dashboard based on our explicit checks
+        if (isBrand) {
+          console.log("Rendering BrandDashboard");
+          return <BrandDashboard />;
+        } else {
+          console.log("Rendering InfluencerDashboard");
+          return <InfluencerDashboard />;
+        }
       case 'discover':
         return <CampaignDiscovery />;
       case 'create-campaign':
@@ -77,7 +156,7 @@ function AppContent() {
       case 'settings':
         return <Settings />;
       case 'profile':
-        return user.role === 'influencer' ? (
+        return isInfluencer ? (
           <InfluencerProfile
             influencer={user}
             onUpdate={(updatedData) => {
@@ -88,7 +167,14 @@ function AppContent() {
           <Settings />
         );
       default:
-        return isBrand ? <BrandDashboard /> : <InfluencerDashboard />;
+        // Fallback to explicit check
+        if (isBrand) {
+          console.log("Rendering BrandDashboard (fallback)");
+          return <BrandDashboard />;
+        } else {
+          console.log("Rendering InfluencerDashboard (fallback)");
+          return <InfluencerDashboard />;
+        }
     }
   };
 
@@ -98,6 +184,7 @@ function AppContent() {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         isOpen={isSidebarOpen}
+        goToLanding={goToLanding} // Pass the goToLanding function to Sidebar
       />
 
       {isSidebarOpen && (

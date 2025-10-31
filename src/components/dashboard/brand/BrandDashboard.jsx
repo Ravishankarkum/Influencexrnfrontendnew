@@ -5,10 +5,37 @@ import {
   Search,
   UserCircle
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { apiService } from '../../../services/api';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const BrandDashboard = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('create');
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (activeTab === 'analytics' && user) {
+        setLoading(true);
+        setError(null);
+        try {
+          const data = await apiService.dashboard.getBrandDashboard();
+          setDashboardData(data);
+        } catch (err) {
+          console.error('Error fetching dashboard data:', err);
+          setError(err.message || 'Failed to load dashboard data');
+          setDashboardData(null);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchDashboardData();
+  }, [activeTab, user]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -74,11 +101,38 @@ const BrandDashboard = () => {
         return (
           <div className="bg-white p-6 rounded-xl shadow border">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Analytics</h3>
-            <div className="space-y-3">
-              <p>📊 Campaign #1: 25K Reach, 3.2% Engagement</p>
-              <p>📊 Campaign #2: 58K Reach, 5.1% Engagement</p>
-              <p>📊 Campaign #3: 10K Reach, 2.0% Engagement</p>
-            </div>
+            {loading ? (
+              <div className="text-center py-4">Loading analytics...</div>
+            ) : error ? (
+              <div className="text-center py-4 text-red-600">Error: {error}</div>
+            ) : dashboardData ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {dashboardData.stats?.map((stat, index) => (
+                    <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600">{stat.label}</p>
+                      <p className="text-xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-sm text-green-600">{stat.change}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">Profile Statistics</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><strong>Total Campaigns:</strong> {dashboardData.profileStats?.total_campaigns || 0}</div>
+                    <div><strong>Collaborating Influencers:</strong> {dashboardData.profileStats?.collaborating_influencers || 0}</div>
+                    <div><strong>Total Reach:</strong> {dashboardData.profileStats?.total_reach?.toLocaleString() || 0}</div>
+                    <div><strong>Budget Spent:</strong> ${dashboardData.profileStats?.budget_spent?.toLocaleString() || 0}</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p>📊 Campaign #1: 25K Reach, 3.2% Engagement</p>
+                <p>📊 Campaign #2: 58K Reach, 5.1% Engagement</p>
+                <p>📊 Campaign #3: 10K Reach, 2.0% Engagement</p>
+              </div>
+            )}
           </div>
         );
 

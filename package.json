@@ -1,5 +1,6 @@
 {
-  "name": "influencer-marketing-platform",
+  "name": "collabify-marketing-platform",
+  "description": "Collabify Frontend - React.js dashboard for influencer marketing platform",
   "private": true,
   "version": "0.0.0",
   "type": "module",
