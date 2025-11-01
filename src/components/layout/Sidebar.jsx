@@ -68,7 +68,7 @@ export function Sidebar({ isOpen, activeSection, setActiveSection, goToLanding }
               style={activeSection === id ? { backgroundColor: '#00FFFF', color: '#0A192F' } : {}}
             >
               <Icon size={22} />
-              <span className="font-medium text-base">{label}</span>
+              <span className="font-medium text-base whitespace-nowrap">{label}</span>
             </button>
           ))}
         </nav>
