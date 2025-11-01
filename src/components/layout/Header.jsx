@@ -87,9 +87,7 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
                 <User size={18} className="text-white" />
               </div>
               <div className="hidden md:block">
-                <p className="text-sm font-semibold text-neutral-900">
-                  {user?.role === 'influencer' ? user?.username : user?.email}
-                </p>
+                <p className="text-sm font-semibold text-neutral-900">{user?.username || user?.email}</p>
                 <p className="text-xs text-neutral-500 capitalize">{user?.role}</p>
               </div>
             </div>
