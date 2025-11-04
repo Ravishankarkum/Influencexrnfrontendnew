@@ -33,9 +33,9 @@ export const API_CONFIG = {
     // ==============================
     CAMPAIGNS: {
       BASE: '/api/campaigns',
-      CREATE: '/api/campaigns/create',
-      UPDATE: '/api/campaigns/update',
-      DELETE: '/api/campaigns/delete',
+      CREATE: '/api/campaigns',
+      UPDATE: '/api/campaigns',
+      DELETE: '/api/campaigns',
       APPLY: '/api/campaigns/apply'
     },
 
@@ -44,8 +44,8 @@ export const API_CONFIG = {
     // ==============================
     COLLABORATIONS: {
       BASE: '/api/collaborations',
-      CREATE: '/api/collaborations/create',
-      UPDATE: '/api/collaborations/update',
+      CREATE: '/api/collaborations',
+      UPDATE: '/api/collaborations',
       STATUS: '/api/collaborations/status'
     },
 

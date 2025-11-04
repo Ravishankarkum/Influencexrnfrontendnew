@@ -136,6 +136,35 @@ export function AuthProvider({ children }) {
   const updateUser = (userData) => {
     setUser(prev => ({ ...prev, ...userData }));
   };
+  
+  const updatePassword = async (passwordData) => {
+    setIsLoading(true);
+    try {
+      const response = await apiService.auth.updatePassword(passwordData);
+      return response;
+    } catch (error) {
+      console.error('Update password error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const deleteAccount = async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiService.auth.deleteAccount();
+      // Log out the user after deleting the account
+      removeToken();
+      setUser(null);
+      return response;
+    } catch (error) {
+      console.error('Delete account error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AuthContext.Provider
@@ -145,6 +174,8 @@ export function AuthProvider({ children }) {
         signup,
         logout,
         updateUser,
+        updatePassword,
+        deleteAccount,
         isLoading,
         isInitializing
       }}

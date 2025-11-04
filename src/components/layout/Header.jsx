@@ -1,11 +1,59 @@
 import { Bell, LogOut, Menu, User, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiService } from '../../services/api';
 
 export function Header({ isSidebarOpen, toggleSidebar }) {
   const { user, logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  
+  // Fetch notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (user && showNotifications) {
+        try {
+          const data = await apiService.notifications.getAll();
+          setNotifications(data);
+          const unread = data.filter(notification => !notification.read).length;
+          setUnreadCount(unread);
+        } catch (error) {
+          console.error('Error fetching notifications:', error);
+        }
+      }
+    };
+
+    fetchNotifications();
+  }, [user, showNotifications]);
+  
+  // Determine what to display as the user's name
+  const getUserDisplayName = () => {
+    if (!user) return '';
+    
+    // For brands, show brand_name; for influencers, show username; fallback to email
+    if (user.role === 'brand') {
+      return user.brand_name || user.email;
+    } else {
+      return user.username || user.email;
+    }
+  };
+  
+  // Mark notification as read
+  const markAsRead = async (id) => {
+    try {
+      await apiService.notifications.markAsRead(id);
+      setNotifications(prev => 
+        prev.map(notification => 
+          notification._id === id ? { ...notification, read: true } : notification
+        )
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
 
   return (
     <>
@@ -37,9 +85,11 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Bell size={22} />
-                <span className="absolute top-1 right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold" style={{ backgroundColor: '#00FFFF', color: '#0A192F' }}>
-                  3
-                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold" style={{ backgroundColor: '#00FFFF', color: '#0A192F' }}>
+                    {unreadCount}
+                  </span>
+                )}
               </button>
 
               {/* Notification Dropdown */}
@@ -49,33 +99,32 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
                     Notifications
                   </div>
                   <ul className="divide-y divide-neutral-100 text-sm max-h-96 overflow-y-auto scrollbar-thin">
-                    <li className="p-4 hover:bg-primary-50 cursor-pointer transition-colors">
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl">📢</span>
-                        <div>
-                          <p className="font-medium text-neutral-900">New campaign offer from BrandX</p>
-                          <p className="text-xs text-neutral-500 mt-1">2 hours ago</p>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="p-4 hover:bg-primary-50 cursor-pointer transition-colors">
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl">💰</span>
-                        <div>
-                          <p className="font-medium text-neutral-900">Payment processed</p>
-                          <p className="text-xs text-neutral-500 mt-1">5 hours ago</p>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="p-4 hover:bg-primary-50 cursor-pointer transition-colors">
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl">✅</span>
-                        <div>
-                          <p className="font-medium text-neutral-900">Campaign Z completed</p>
-                          <p className="text-xs text-neutral-500 mt-1">1 day ago</p>
-                        </div>
-                      </div>
-                    </li>
+                    {notifications.length > 0 ? (
+                      notifications.map((notification) => (
+                        <li 
+                          key={notification._id} 
+                          className={`p-4 hover:bg-primary-50 cursor-pointer transition-colors ${!notification.read ? 'bg-blue-50' : ''}`}
+                          onClick={() => markAsRead(notification._id)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="text-2xl">
+                              {notification.type === 'campaign_created' ? '📢' : '🔔'}
+                            </span>
+                            <div>
+                              <p className="font-medium text-neutral-900">{notification.title}</p>
+                              <p className="text-neutral-600">{notification.message}</p>
+                              <p className="text-xs text-neutral-500 mt-1">
+                                {new Date(notification.createdAt).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="p-4 text-center text-neutral-500">
+                        No notifications
+                      </li>
+                    )}
                   </ul>
                 </div>
               )}
@@ -87,7 +136,7 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
                 <User size={18} className="text-white" />
               </div>
               <div className="hidden md:block">
-                <p className="text-sm font-semibold text-neutral-900">{user?.username || user?.email}</p>
+                <p className="text-sm font-semibold text-neutral-900">{getUserDisplayName()}</p>
                 <p className="text-xs text-neutral-500 capitalize">{user?.role}</p>
               </div>
             </div>

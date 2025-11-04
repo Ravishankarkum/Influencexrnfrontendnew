@@ -97,6 +97,19 @@ export const apiService = {
 
     getProfile: async () => {
       return await apiRequest(API_CONFIG.ENDPOINTS.AUTH.PROFILE);
+    },
+    
+    updatePassword: async (passwordData) => {
+      return await apiRequest('/api/users/update-password', {
+        method: 'PUT',
+        body: passwordData
+      });
+    },
+    
+    deleteAccount: async () => {
+      return await apiRequest('/api/users/delete-account', {
+        method: 'DELETE'
+      });
     }
   },
 
@@ -213,6 +226,33 @@ export const apiService = {
         ? `${API_CONFIG.ENDPOINTS.DASHBOARD.ANALYTICS}?${queryParams}`
         : API_CONFIG.ENDPOINTS.DASHBOARD.ANALYTICS;
       return await apiRequest(endpoint);
+    }
+  },
+
+  // ========================
+  // Notifications
+  // ========================
+  notifications: {
+    getAll: async () => {
+      return await apiRequest('/api/notifications');
+    },
+    
+    markAsRead: async (id) => {
+      return await apiRequest(`/api/notifications/${id}/read`, {
+        method: 'PUT'
+      });
+    },
+    
+    markAllAsRead: async () => {
+      return await apiRequest('/api/notifications/read-all', {
+        method: 'PUT'
+      });
+    },
+    
+    delete: async (id) => {
+      return await apiRequest(`/api/notifications/${id}`, {
+        method: 'DELETE'
+      });
     }
   },
 

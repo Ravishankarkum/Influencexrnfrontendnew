@@ -1,16 +1,19 @@
-import { Bell, CreditCard, Eye, Save, Shield, User } from 'lucide-react';
+import { Bell, CreditCard, Eye, Save, Shield, User, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
-import { MediaUpload } from '../upload/MediaUpload';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export function Settings() {
+  const { user, updatePassword, deleteAccount, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
     // Profile settings
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1 (555) 123-4567',
-    bio: 'Passionate content creator focused on lifestyle and fashion.',
-    website: 'https://johndoe.com',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    bio: user?.bio || '',
+    website: user?.website || '',
     
     // Notification settings
     emailNotifications: true,
@@ -26,8 +29,17 @@ export function Settings() {
     // Payment settings
     paymentMethod: 'bank',
     bankAccount: '**** **** **** 1234',
-    paypalEmail: 'john@example.com'
+    paypalEmail: user?.email || '',
+    
+    // Security settings
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
   });
+  
+  const [errors, setErrors] = useState({});
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -42,11 +54,100 @@ export function Settings() {
       ...prev,
       [field]: value
     }));
+    
+    // Clear error for this field when user types
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleSave = () => {
     console.log('Settings saved:', formData);
     // Handle save logic here
+  };
+  
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    
+    // Reset errors
+    setErrors({});
+    
+    // Validate passwords
+    if (!formData.currentPassword) {
+      setErrors(prev => ({ ...prev, currentPassword: 'Current password is required' }));
+      return;
+    }
+    
+    if (!formData.newPassword) {
+      setErrors(prev => ({ ...prev, newPassword: 'New password is required' }));
+      return;
+    }
+    
+    if (formData.newPassword.length < 8) {
+      setErrors(prev => ({ ...prev, newPassword: 'Password must be at least 8 characters' }));
+      return;
+    }
+    
+    if (formData.newPassword !== formData.confirmNewPassword) {
+      setErrors(prev => ({ ...prev, confirmNewPassword: 'Passwords do not match' }));
+      return;
+    }
+    
+    try {
+      await updatePassword({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword
+      });
+      
+      // Reset password fields
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      }));
+      
+      alert('Password updated successfully');
+    } catch (error) {
+      console.error('Password update error:', error);
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Failed to update password. Please try again.');
+      }
+    }
+  };
+  
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'DELETE') {
+      alert('Please type "DELETE" to confirm account deletion');
+      return;
+    }
+    
+    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      return;
+    }
+    
+    setIsDeleting(true);
+    try {
+      await deleteAccount();
+      // User will be logged out automatically
+      navigate('/'); // Redirect to home page
+    } catch (error) {
+      console.error('Account deletion error:', error);
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Failed to delete account. Please try again.');
+      }
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmation('');
+    }
   };
 
   const renderTabContent = () => {
@@ -91,17 +192,6 @@ export function Settings() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 />
               </div>
-            </div>
-            
-            {/* Profile Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
-              <MediaUpload
-                onUpload={(files) => handleInputChange('profileImage', files[0])}
-                acceptedTypes="image/*"
-                maxFiles={1}
-                existingFiles={formData.profileImage ? [formData.profileImage] : []}
-              />
             </div>
             
             <div>
@@ -292,52 +382,84 @@ export function Settings() {
           <div className="space-y-6">
             <div>
               <h4 className="font-medium text-gray-900 mb-4">Change Password</h4>
-              <div className="space-y-4">
+              <form onSubmit={handleChangePassword} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
                   <input
                     type="password"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    value={formData.currentPassword}
+                    onChange={(e) => handleInputChange('currentPassword', e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${errors.currentPassword ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Enter current password"
                   />
+                  {errors.currentPassword && (
+                    <p className="text-red-500 text-xs mt-1">{errors.currentPassword}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
                   <input
                     type="password"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    value={formData.newPassword}
+                    onChange={(e) => handleInputChange('newPassword', e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${errors.newPassword ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Enter new password"
                   />
+                  {errors.newPassword && (
+                    <p className="text-red-500 text-xs mt-1">{errors.newPassword}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
                   <input
                     type="password"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    value={formData.confirmNewPassword}
+                    onChange={(e) => handleInputChange('confirmNewPassword', e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${errors.confirmNewPassword ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Confirm new password"
                   />
+                  {errors.confirmNewPassword && (
+                    <p className="text-red-500 text-xs mt-1">{errors.confirmNewPassword}</p>
+                  )}
                 </div>
-              </div>
-            </div>
-
-            <div className="bg-yellow-50 p-4 rounded-lg">
-              <h4 className="font-medium text-yellow-900 mb-2">Two-Factor Authentication</h4>
-              <p className="text-sm text-yellow-700 mb-3">
-                Add an extra layer of security to your account by enabling two-factor authentication.
-              </p>
-              <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all">
-                Enable 2FA
-              </button>
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
+                >
+                  Change Password
+                </button>
+              </form>
             </div>
 
             <div className="bg-red-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-900 mb-2">Danger Zone</h4>
-              <p className="text-sm text-red-700 mb-3">
-                Permanently delete your account and all associated data. This action cannot be undone.
-              </p>
-              <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">
-                Delete Account
-              </button>
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="text-red-500 mt-1" size={20} />
+                <div>
+                  <h4 className="font-medium text-red-900 mb-2">Delete Account</h4>
+                  <p className="text-sm text-red-700 mb-3">
+                    Permanently delete your account and all associated data. This action cannot be undone.
+                  </p>
+                  <div className="mb-3">
+                    <label className="block text-sm text-red-700 mb-2">
+                      Type "DELETE" to confirm:
+                    </label>
+                    <input
+                      type="text"
+                      value={deleteConfirmation}
+                      onChange={(e) => setDeleteConfirmation(e.target.value)}
+                      className="w-full px-4 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      placeholder="Type DELETE"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting}
+                    className={`px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete Account'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -380,15 +502,17 @@ export function Settings() {
           <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
             {renderTabContent()}
             
-            <div className="flex justify-end pt-6 mt-6 border-t border-gray-200">
-              <button
-                onClick={handleSave}
-                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-blue-600 transition-all flex items-center gap-2"
-              >
-                <Save size={16} />
-                Save Changes
-              </button>
-            </div>
+            {activeTab !== 'security' && (
+              <div className="flex justify-end pt-6 mt-6 border-t border-gray-200">
+                <button
+                  onClick={handleSave}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-blue-600 transition-all flex items-center gap-2"
+                >
+                  <Save size={16} />
+                  Save Changes
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

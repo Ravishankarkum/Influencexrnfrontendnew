@@ -13,8 +13,16 @@ const BrandDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('create');
   const [dashboardData, setDashboardData] = useState(null);
+  const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [campaignForm, setCampaignForm] = useState({
+    title: '',
+    description: '',
+    budget: '',
+    category: '',
+    targetMarket: ''
+  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -34,8 +42,72 @@ const BrandDashboard = () => {
       }
     };
 
+    const fetchCampaigns = async () => {
+      if (activeTab === 'campaigns' && user) {
+        setLoading(true);
+        setError(null);
+        try {
+          const data = await apiService.campaigns.getAll();
+          // Filter campaigns by current brand
+          const brandCampaigns = data.filter(campaign => campaign.brand._id === user._id);
+          setCampaigns(brandCampaigns);
+        } catch (err) {
+          console.error('Error fetching campaigns:', err);
+          setError(err.message || 'Failed to load campaigns');
+          setCampaigns([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchDashboardData();
+    fetchCampaigns();
   }, [activeTab, user]);
+
+  const handleCampaignFormChange = (e) => {
+    const { name, value } = e.target;
+    setCampaignForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCreateCampaign = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const campaignData = {
+        ...campaignForm,
+        budget: parseFloat(campaignForm.budget)
+      };
+      
+      await apiService.campaigns.create(campaignData);
+      
+      // Reset form
+      setCampaignForm({
+        title: '',
+        description: '',
+        budget: '',
+        category: '',
+        targetMarket: ''
+      });
+      
+      // Refresh campaigns list
+      const data = await apiService.campaigns.getAll();
+      const brandCampaigns = data.filter(campaign => campaign.brand._id === user._id);
+      setCampaigns(brandCampaigns);
+      
+      alert('Campaign created successfully!');
+    } catch (err) {
+      console.error('Error creating campaign:', err);
+      setError(err.message || 'Failed to create campaign');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -43,17 +115,72 @@ const BrandDashboard = () => {
         return (
           <div className="bg-white p-6 rounded-xl shadow border space-y-4">
             <h3 className="text-xl font-semibold text-gray-900">Create Campaign</h3>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input className="border p-2 rounded" placeholder="Product Name" />
-              <input className="border p-2 rounded" type="number" placeholder="Budget ($)" />
-              <input className="border p-2 rounded" placeholder="Category (e.g., Fashion)" />
-              <input className="border p-2 rounded" placeholder="Target Market (e.g., Teens, USA)" />
-              <input className="border p-2 rounded" placeholder="Influencer Username" />
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleCreateCampaign} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                <input 
+                  name="title"
+                  value={campaignForm.title}
+                  onChange={handleCampaignFormChange}
+                  className="border p-2 rounded w-full"
+                  placeholder="Product Name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Budget ($)</label>
+                <input 
+                  name="budget"
+                  type="number"
+                  value={campaignForm.budget}
+                  onChange={handleCampaignFormChange}
+                  className="border p-2 rounded w-full"
+                  placeholder="Budget ($)"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <input 
+                  name="category"
+                  value={campaignForm.category}
+                  onChange={handleCampaignFormChange}
+                  className="border p-2 rounded w-full"
+                  placeholder="Category (e.g., Fashion)"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Target Market</label>
+                <input 
+                  name="targetMarket"
+                  value={campaignForm.targetMarket}
+                  onChange={handleCampaignFormChange}
+                  className="border p-2 rounded w-full"
+                  placeholder="Target Market (e.g., Teens, USA)"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea 
+                  name="description"
+                  value={campaignForm.description}
+                  onChange={handleCampaignFormChange}
+                  className="border p-2 rounded w-full"
+                  placeholder="Campaign description"
+                  rows="3"
+                />
+              </div>
               <button
                 type="submit"
-                className="col-span-1 md:col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                disabled={loading}
+                className={`col-span-1 md:col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Submit Campaign
+                {loading ? 'Creating Campaign...' : 'Submit Campaign'}
               </button>
             </form>
           </div>
@@ -63,11 +190,52 @@ const BrandDashboard = () => {
         return (
           <div className="bg-white p-6 rounded-xl shadow border">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">My Campaigns</h3>
-            <ul className="space-y-3">
-              <li className="p-3 bg-gray-100 rounded-md border">🎯 Campaign #1 - Influencer: @influencer123</li>
-              <li className="p-3 bg-gray-100 rounded-md border">🎯 Campaign #2 - Category: Tech</li>
-              <li className="p-3 bg-gray-100 rounded-md border">🎯 Campaign #3 - Budget: $5,000</li>
-            </ul>
+            {loading ? (
+              <div className="text-center py-4">Loading campaigns...</div>
+            ) : error ? (
+              <div className="text-center py-4 text-red-600">Error: {error}</div>
+            ) : campaigns.length > 0 ? (
+              <ul className="space-y-3">
+                {campaigns.map((campaign) => (
+                  <li key={campaign._id} className="p-4 bg-gray-100 rounded-md border">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{campaign.title}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{campaign.description}</p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                            Budget: ${campaign.budget}
+                          </span>
+                          {campaign.category && (
+                            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                              {campaign.category}
+                            </span>
+                          )}
+                          {campaign.targetMarket && (
+                            <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
+                              {campaign.targetMarket}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">
+                        {new Date(campaign.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <p>You haven't created any campaigns yet.</p>
+                <button 
+                  onClick={() => setActiveTab('create')}
+                  className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Create your first campaign
+                </button>
+              </div>
+            )}
           </div>
         );
 
@@ -89,10 +257,10 @@ const BrandDashboard = () => {
           <div className="bg-white p-6 rounded-xl shadow border">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">My Profile</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div><strong>Brand Name:</strong> YourBrand</div>
-              <div><strong>Email:</strong> contact@yourbrand.com</div>
-              <div><strong>Total Campaigns:</strong> 7</div>
-              <div><strong>Total Budget:</strong> $32,500</div>
+              <div><strong>Brand Name:</strong> {user?.brand_name || 'N/A'}</div>
+              <div><strong>Email:</strong> {user?.email || 'N/A'}</div>
+              <div><strong>Total Campaigns:</strong> {campaigns.length}</div>
+              <div><strong>Total Budget:</strong> ${campaigns.reduce((total, campaign) => total + campaign.budget, 0)}</div>
             </div>
           </div>
         );
