@@ -20,6 +20,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { InfluencerProfile } from './components/profile/InfluencerProfile';
 import { Settings } from './components/settings/Settings';
 import SignupForm from './components/auth/SignupForm';
+import ConnectionTest from './components/ConnectionTest';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Helper function to determine if user is a brand
@@ -76,10 +77,13 @@ function AppContent() {
 
   if (!user && !showLogin && !showSignup) {
     return (
-      <LandingPage 
-        onGetStarted={() => setShowLogin(true)} 
-        onSignUp={() => setShowSignup(true)} 
-      />
+      <div>
+        <LandingPage 
+          onGetStarted={() => setShowLogin(true)} 
+          onSignUp={() => setShowSignup(true)} 
+        />
+        <ConnectionTest />
+      </div>
     );
   }
 

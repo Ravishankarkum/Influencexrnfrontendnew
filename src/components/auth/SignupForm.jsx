@@ -342,7 +342,7 @@ export default function SignupForm({ onBackToLogin, onBackToLanding }) {
         </label>
         <input
           type="email"
-          placeholder="Enter your email (gmail.com or gla.ac.in)"
+          placeholder="Enter your email"
           value={formData.email}
           onChange={(e) => handleInputChange('email', e.target.value)}
           onBlur={(e) => validateField('email', e.target.value)}

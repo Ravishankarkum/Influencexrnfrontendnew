@@ -204,7 +204,7 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
                 onChange={(e) => handleEmailChange(e.target.value)}
                 onBlur={(e) => validateField('email', e.target.value)}
                 className={`input-icon ${errors.email ? 'border-red-500' : ''}`}
-                placeholder="Enter your email (gmail.com or gla.ac.in)"
+                placeholder="Enter your email"
               />
             </div>
             {errors.email && (
