@@ -1,4 +1,4 @@
-import { Bell, LogOut, Menu, User, X } from 'lucide-react';
+import { Bell, HelpCircle, LogOut, Menu, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService } from '../../services/api';
@@ -55,6 +55,32 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
     }
   };
 
+  // Handle the "Need Help" button click
+  const handleNeedHelp = () => {
+    // Create a support email with pre-filled information
+    const subject = `Support Request - ${user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)} Dashboard`;
+    const body = `
+Hello Support Team,
+
+I need help with the ${user?.role} dashboard.
+
+User Information:
+- User ID: ${user?._id || 'N/A'}
+- Email: ${user?.email || 'N/A'}
+- Role: ${user?.role || 'N/A'}
+- Name: ${user?.brand_name || user?.username || 'N/A'}
+
+Please describe your issue below:
+[Please describe your issue in detail here]
+
+Screenshots (if applicable):
+[Attach any relevant screenshots here]
+    `.trim();
+
+    // Open the default email client with pre-filled information
+    window.location.href = `mailto:support@collabify.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
   return (
     <>
       <header className="bg-white shadow-md border-b px-6 py-5" style={{ borderColor: '#e5e5e5' }}>
@@ -75,6 +101,18 @@ export function Header({ isSidebarOpen, toggleSidebar }) {
           </div>
 
           <div className="flex items-center gap-5">
+            {/* Need Help Button */}
+            <button
+              onClick={handleNeedHelp}
+              className="p-3 rounded-xl transition-all group"
+              style={{ color: '#222222' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e6ffff'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              title="Need Help?"
+            >
+              <HelpCircle size={22} />
+            </button>
+
             {/* Notification Bell */}
             <div className="relative">
               <button

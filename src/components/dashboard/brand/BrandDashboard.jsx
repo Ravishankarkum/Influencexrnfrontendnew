@@ -100,6 +100,9 @@ const BrandDashboard = () => {
       const brandCampaigns = data.filter(campaign => campaign.brand._id === user._id);
       setCampaigns(brandCampaigns);
       
+      // Switch to campaigns tab to show the newly created campaign
+      setActiveTab('campaigns');
+      
       alert('Campaign created successfully!');
     } catch (err) {
       console.error('Error creating campaign:', err);
@@ -114,7 +117,9 @@ const BrandDashboard = () => {
       case 'create':
         return (
           <div className="bg-white p-6 rounded-xl shadow border space-y-4">
-            <h3 className="text-xl font-semibold text-gray-900">Create Campaign</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-semibold text-gray-900">Create New Campaign</h3>
+            </div>
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                 {error}
@@ -180,7 +185,7 @@ const BrandDashboard = () => {
                 disabled={loading}
                 className={`col-span-1 md:col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {loading ? 'Creating Campaign...' : 'Submit Campaign'}
+                {loading ? 'Creating Campaign...' : 'Create Campaign'}
               </button>
             </form>
           </div>
@@ -189,7 +194,15 @@ const BrandDashboard = () => {
       case 'campaigns':
         return (
           <div className="bg-white p-6 rounded-xl shadow border">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">My Campaigns</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">My Campaigns</h3>
+              <button 
+                onClick={() => setActiveTab('create')}
+                className="flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                <Plus size={18} /> Create Campaign
+              </button>
+            </div>
             {loading ? (
               <div className="text-center py-4">Loading campaigns...</div>
             ) : error ? (
@@ -230,9 +243,9 @@ const BrandDashboard = () => {
                 <p>You haven't created any campaigns yet.</p>
                 <button 
                   onClick={() => setActiveTab('create')}
-                  className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
+                  className="mt-4 flex items-center gap-1 mx-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Create your first campaign
+                  <Plus size={18} /> Create Your First Campaign
                 </button>
               </div>
             )}
@@ -246,7 +259,10 @@ const BrandDashboard = () => {
             <p className="text-sm text-gray-600 mb-4">
               Explore and invite top influencers for your campaigns.
             </p>
-            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'influencers' }))}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
               Browse Influencers
             </button>
           </div>
@@ -310,7 +326,7 @@ const BrandDashboard = () => {
   };
 
   const navItems = [
-    { id: 'create', label: 'Create', icon: <Plus size={18} /> },
+    { id: 'create', label: 'Create Campaign', icon: <Plus size={18} /> },
     { id: 'campaigns', label: 'My Campaigns', icon: <FileText size={18} /> },
     { id: 'search', label: 'Find Influencers', icon: <Search size={18} /> },
     { id: 'profile', label: 'My Profile', icon: <UserCircle size={18} /> },

@@ -53,6 +53,19 @@ function AppContent() {
   const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
+    // Listen for navigation events from components
+    const handleNavigation = (event) => {
+      setActiveSection(event.detail);
+    };
+
+    window.addEventListener('navigate', handleNavigation);
+    
+    return () => {
+      window.removeEventListener('navigate', handleNavigation);
+    };
+  }, []);
+
+  useEffect(() => {
     if (user) {
       setActiveSection('dashboard');
       console.log("=== USER AUTHENTICATION DEBUG INFO ===");

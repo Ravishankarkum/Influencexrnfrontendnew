@@ -37,6 +37,32 @@ export function Sidebar({ isOpen, activeSection, setActiveSection, goToLanding }
 
   const menuItems = user?.role === 'brand' ? brandMenuItems : influencerMenuItems;
 
+  // Handle the "Get Support" button click
+  const handleGetSupport = () => {
+    // Create a support email with pre-filled information
+    const subject = `Support Request - ${user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)} Dashboard`;
+    const body = `
+Hello Support Team,
+
+I need help with the ${user?.role} dashboard.
+
+User Information:
+- User ID: ${user?._id || 'N/A'}
+- Email: ${user?.email || 'N/A'}
+- Role: ${user?.role || 'N/A'}
+- Name: ${user?.brand_name || user?.username || 'N/A'}
+
+Please describe your issue below:
+[Please describe your issue in detail here]
+
+Screenshots (if applicable):
+[Attach any relevant screenshots here]
+    `.trim();
+
+    // Open the default email client with pre-filled information
+    window.location.href = `mailto:support@collabify.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
   return (
     <aside
       className={`shadow-lg border-r transition-all duration-300 z-20
@@ -76,7 +102,10 @@ export function Sidebar({ isOpen, activeSection, setActiveSection, goToLanding }
         <div className="mt-8 p-5 rounded-2xl border" style={{ backgroundColor: '#0A192F', borderColor: '#00FFFF' }}>
           <p className="text-sm font-medium text-white mb-2">Need Help?</p>
           <p className="text-xs mb-4" style={{ color: '#ffffff99' }}>Contact our support team</p>
-          <button className="w-full btn-primary text-sm py-2">
+          <button 
+            className="w-full btn-primary text-sm py-2"
+            onClick={handleGetSupport}
+          >
             Get Support
           </button>
         </div>
