@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "antd": "^5.28.1",
     "dotenv": "^17.2.1",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
