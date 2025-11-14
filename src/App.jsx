@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { Analytics } from './components/analytics/Analytics';
 import { LoginForm } from './components/auth/LoginForm';
-import ProtectedRoute from './components/auth/ProtectedRoute';
 import { CampaignDiscovery } from './components/campaigns/CampaignDiscovery';
 import { CreateCampaign } from './components/campaigns/CreateCampaign';
 import { MyCampaigns } from './components/campaigns/MyCampaigns';
 import { CollaborationManager } from './components/collaborations/CollaborationManager';
 import ErrorBoundary from './components/common/ErrorBoundary';
-
 import { PageLoader } from './components/common/LoadingSpinner';
 import BrandDashboard from './components/dashboard/brand/BrandDashboard';
 import { ApplyForm } from './components/dashboard/influencer/ApplyForm';
@@ -21,6 +19,7 @@ import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { InfluencerProfile } from './components/profile/InfluencerProfile';
 import { Settings } from './components/settings/Settings';
+import { HelpSupport } from './components/support/HelpSupport';
 import SignupForm from './components/auth/SignupForm';
 import ConnectionTest from './components/ConnectionTest';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -53,19 +52,6 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-
-  useEffect(() => {
-    // Listen for navigation events from components
-    const handleNavigation = (event) => {
-      setActiveSection(event.detail);
-    };
-
-    window.addEventListener('navigate', handleNavigation);
-    
-    return () => {
-      window.removeEventListener('navigate', handleNavigation);
-    };
-  }, []);
 
   useEffect(() => {
     if (user) {
@@ -174,6 +160,8 @@ function AppContent() {
         return <Analytics />;
       case 'settings':
         return <Settings />;
+      case 'help':
+        return <HelpSupport />;
       case 'profile':
         return isInfluencer ? (
           <InfluencerProfile
@@ -226,11 +214,7 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <Routes>
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/signup" element={<SignupForm />} />
           <Route path="/apply/:campaignId" element={<ApplyForm />} />
-          
-          
           <Route path="*" element={<AppContent />} />
         </Routes>
       </AuthProvider>
