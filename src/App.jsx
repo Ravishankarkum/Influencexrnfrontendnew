@@ -9,7 +9,7 @@ import { CreateCampaign } from './components/campaigns/CreateCampaign';
 import { MyCampaigns } from './components/campaigns/MyCampaigns';
 import { CollaborationManager } from './components/collaborations/CollaborationManager';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import AdminRoutes from './routes/AdminRoutes';
+
 import { PageLoader } from './components/common/LoadingSpinner';
 import BrandDashboard from './components/dashboard/brand/BrandDashboard';
 import { ApplyForm } from './components/dashboard/influencer/ApplyForm';
@@ -229,11 +229,8 @@ function App() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignupForm />} />
           <Route path="/apply/:campaignId" element={<ApplyForm />} />
-          <Route path="/admin/*" element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminRoutes />
-            </ProtectedRoute>
-          } />
+          
+          
           <Route path="*" element={<AppContent />} />
         </Routes>
       </AuthProvider>
