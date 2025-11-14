@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
@@ -20,6 +21,8 @@ import { Sidebar } from './components/layout/Sidebar';
 import { InfluencerProfile } from './components/profile/InfluencerProfile';
 import { Settings } from './components/settings/Settings';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+import GoogleSuccess from "./components/auth/GoogleSuccess"; // ✅ ADD THIS
 
 function AppContent() {
   const { user, isInitializing } = useAuth();
@@ -118,12 +121,18 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Routes>
-          <Route path="/apply/:campaignId" element={<ApplyForm />} />
-          <Route path="*" element={<AppContent />} />
-        </Routes>
-      </AuthProvider>
+      <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID"> {/* ✅ ADDED */}
+        <AuthProvider>
+          <Routes>
+            <Route path="/apply/:campaignId" element={<ApplyForm />} />
+
+            {/* ✅ GOOGLE SUCCESS PAGE */}
+            <Route path="/google-success" element={<GoogleSuccess />} />
+
+            <Route path="*" element={<AppContent />} />
+          </Routes>
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </ErrorBoundary>
   );
 }

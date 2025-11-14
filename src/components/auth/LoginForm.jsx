@@ -11,7 +11,6 @@ function validateEmail(email) {
 
 // Password validation function
 function validatePassword(password) {
-    // At least 8 characters, one uppercase, one lowercase, one number
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     return passwordRegex.test(password);
 }
@@ -58,102 +57,59 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
     return !newErrors[field];
   };
 
-  // Real-time validation on input change
   const handleEmailChange = (value) => {
     setEmail(value);
-    if (errors.email) {
-      validateField('email', value);
-    }
+    if (errors.email) validateField('email', value);
   };
 
   const handlePasswordChange = (value) => {
     setPassword(value);
-    if (errors.password) {
-      validateField('password', value);
-    }
+    if (errors.password) validateField('password', value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGeneralError('');
     
-    // Validate all fields
     const isEmailValid = validateField('email', email);
     const isPasswordValid = validateField('password', password);
     
-    if (!isEmailValid || !isPasswordValid) {
-      return;
-    }
+    if (!isEmailValid || !isPasswordValid) return;
 
     try {
-      // Pass the selected user type to the login function
       const response = await login(email, password, userType);
-      
-      console.log("✅ Logged in user data:", response.user || response);
-      
-      // Check if the logged in user's role matches the selected user type
       const loggedInUserRole = response.user?.role || response.role;
-      const selectedUserType = userType;
-      
-      console.log("Selected user type:", selectedUserType);
-      console.log("Logged in user role:", loggedInUserRole);
-      
-      if (loggedInUserRole && selectedUserType) {
-        const normalizedLoggedInRole = loggedInUserRole.toString().trim().toLowerCase();
-        const normalizedSelectedType = selectedUserType.toString().trim().toLowerCase();
-        
-        // For brands, the role in database is 'brand'
-        // For influencers, the role in database is 'influencer'
-        if (normalizedSelectedType === 'brand' && normalizedLoggedInRole !== 'brand') {
-          // User selected brand but logged in as influencer
-          setGeneralError('Influencer account found. Please select "Influencer" user type or use a brand account.');
-          return;
-        } else if (normalizedSelectedType === 'influencer' && normalizedLoggedInRole !== 'influencer') {
-          // User selected influencer but logged in as brand
-          setGeneralError('Brand account found. Please select "Brand" user type or use an influencer account.');
-          return;
-        }
+
+      const normalizedLoggedInRole = loggedInUserRole?.toLowerCase();
+      const normalizedSelectedType = userType?.toLowerCase();
+
+      if (normalizedSelectedType !== normalizedLoggedInRole) {
+        setGeneralError(
+          normalizedSelectedType === 'brand'
+            ? 'Influencer account found. Please select the correct user type.'
+            : 'Brand account found. Please select the correct user type.'
+        );
+        return;
       }
 
-      // Navigate to the main app route after successful login
-      // The App component will render the appropriate dashboard based on user role
       navigate('/');
     } catch (err) {
-      console.error('Login submission error:', err);
-      if (err.response?.data?.message) {
-        setGeneralError(err.response.data.message);
-      } else {
-        setGeneralError(err.message || 'Login failed. Please try again.');
-      }
+      setGeneralError(err.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
-  // Function to handle signup link click
-  const handleSignupClickInternal = () => {
-    if (onSignupClick) {
-      onSignupClick();
-    } else {
-      // Fallback behavior
-      window.location.hash = '';
-    }
-  };
+  const handleSignupClickInternal = () =>
+    onSignupClick ? onSignupClick() : (window.location.hash = '');
 
-  // Function to handle back to landing
-  const handleBackToLanding = () => {
-    if (onBackToLanding) {
-      onBackToLanding();
-    } else {
-      // Fallback behavior
-      window.location.hash = '';
-    }
-  };
+  const handleBackToLanding = () =>
+    onBackToLanding ? onBackToLanding() : (window.location.hash = '');
 
-  // Disable submit button if there are validation errors or missing fields
   const isFormValid = email && password && !errors.email && !errors.password;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="card p-10 w-full max-w-md">
+
         <div className="text-center mb-10">
           <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg" style={{ backgroundColor: '#00FFFF' }}>
             <Handshake size={32} style={{ color: '#0A192F' }} />
@@ -162,6 +118,7 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
           <p className="text-lg" style={{ color: '#222222' }}>Sign in to your account</p>
         </div>
 
+        {/* user type selector */}
         <div className="mb-8">
           <div className="flex bg-neutral-100 rounded-2xl p-2">
             <button
@@ -192,10 +149,9 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* email */}
           <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1">
-              Email Address
-            </label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1">Email Address</label>
             <div className="relative">
               <Mail size={20} className="absolute left-5 top-1/2 transform -translate-y-1/2 text-neutral-400" />
               <input
@@ -207,15 +163,12 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
                 placeholder="Enter your email"
               />
             </div>
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-            )}
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
 
+          {/* password */}
           <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1">
-              Password
-            </label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1">Password</label>
             <div className="relative">
               <Lock size={20} className="absolute left-5 top-1/2 transform -translate-y-1/2 text-neutral-400" />
               <input
@@ -234,9 +187,7 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-            )}
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
           </div>
 
           <button
@@ -247,6 +198,19 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
             {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
+
+        {/* ⭐ GOOGLE LOGIN BUTTON ⭐ */}
+        <button 
+          onClick={() => window.location.href = "http://localhost:5000/auth/google"} 
+          className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-300 py-3 rounded-xl shadow-sm hover:shadow-md transition-all mt-4"
+        >
+          <img 
+            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+            alt="Google Logo" 
+            className="w-5 h-5"
+          />
+          <span className="text-neutral-700 font-medium">Sign in with Google</span>
+        </button>
 
         <div className="flex justify-between items-center mt-6">
           <button
@@ -266,6 +230,7 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
             </button>
           </p>
         </div>
+
       </div>
     </div>
   );
