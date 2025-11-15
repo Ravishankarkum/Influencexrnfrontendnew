@@ -28,7 +28,8 @@ export function LoginForm({ onSignupClick, onBackToLanding }) {
 
   // ⭐ GOOGLE LOGIN FUNCTION
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/auth/google";
+    window.location.href = "https://influencexrn-01.onrender.com/auth/google";
+
 
     // WHEN YOU DEPLOY, CHANGE THIS TO:
     // window.location.href = "https://your-backend-url.onrender.com/auth/google";
