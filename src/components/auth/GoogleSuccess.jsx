@@ -7,16 +7,25 @@ export default function GoogleSuccess() {
   const { loginWithToken } = useAuth();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+    const processGoogleLogin = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
 
-    if (token) {
-      loginWithToken(token);
-      navigate("/", { replace: true });
-    } else {
-      navigate("/login?error=MissingToken", { replace: true });
-    }
-  }, []);
+      if (token) {
+        try {
+          await loginWithToken(token); // wait for user to be set
+          navigate("/", { replace: true });
+        } catch (err) {
+          console.error("Google login failed:", err);
+          navigate("/login?error=GoogleLoginFailed", { replace: true });
+        }
+      } else {
+        navigate("/login?error=MissingToken", { replace: true });
+      }
+    };
+
+    processGoogleLogin();
+  }, [loginWithToken, navigate]);
 
   return <div style={{ padding: 20 }}>Processing Google Login...</div>;
 }
