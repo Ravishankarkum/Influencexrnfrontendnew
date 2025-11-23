@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { apiService, getToken, removeToken, setToken } from "../services/api";
 
-const AuthContext = createContext(undefined);
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   // ------------------------------------------
-  // INITIALIZE AUTH ON PAGE LOAD / REFRESH
+  // INITIALIZE AUTH ON PAGE REFRESH
   // ------------------------------------------
   useEffect(() => {
     const initializeAuth = async () => {
@@ -17,37 +17,34 @@ export function AuthProvider({ children }) {
       if (token) {
         setToken(token);
         try {
-          const profile = await apiService.auth.getProfile();
-          profile.role = profile.role ? profile.role.toString().trim().toLowerCase() : "influencer";
-          setUser(profile);
+          const userData = await apiService.auth.getProfile();
+          userData.role = userData.role
+            ? userData.role.toString().trim().toLowerCase()
+            : "influencer";
+          setUser(userData);
         } catch (err) {
-          console.error("Failed to fetch profile on initialization:", err);
           removeToken();
           setUser(null);
         }
       }
       setIsInitializing(false);
     };
-
     initializeAuth();
   }, []);
 
   // ------------------------------------------
-  // LOGIN WITH GOOGLE TOKEN
+  // GOOGLE LOGIN TOKEN
   // ------------------------------------------
   const loginWithToken = async (token) => {
-    if (!token) throw new Error("Token is required for loginWithToken");
     setToken(token);
-
     try {
       const profile = await apiService.auth.getProfile();
-      profile.role = profile.role ? profile.role.toString().trim().toLowerCase() : "influencer";
+      profile.role = profile.role
+        ? profile.role.toString().trim().toLowerCase()
+        : "influencer";
       setUser(profile);
     } catch (err) {
       console.error("Failed to fetch profile after Google login:", err);
-      removeToken();
-      setUser(null);
-      throw err;
     }
   };
 
@@ -62,12 +59,15 @@ export function AuthProvider({ children }) {
       if (token) setToken(token);
 
       const loggedInUser = response.user || response;
-      loggedInUser.role = loggedInUser.role ? loggedInUser.role.toString().trim().toLowerCase() : "influencer";
+      loggedInUser.role = loggedInUser.role
+        ? loggedInUser.role.toString().trim().toLowerCase()
+        : "influencer";
+
       setUser(loggedInUser);
       return response;
-    } catch (err) {
-      console.error("Login error:", err);
-      throw err;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -84,12 +84,15 @@ export function AuthProvider({ children }) {
       if (token) setToken(token);
 
       const registeredUser = response.user || response;
-      registeredUser.role = registeredUser.role ? registeredUser.role.toString().trim().toLowerCase() : "influencer";
+      registeredUser.role = registeredUser.role
+        ? registeredUser.role.toString().trim().toLowerCase()
+        : "influencer";
+
       setUser(registeredUser);
       return response;
-    } catch (err) {
-      console.error("Signup error:", err);
-      throw err;
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -128,9 +131,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// ------------------------------------------
-// HOOK FOR USING AUTH
-// ------------------------------------------
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
