@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
+  // Initialize auth on page refresh
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
@@ -15,44 +16,58 @@ export function AuthProvider({ children }) {
         setToken(token);
         try {
           const profile = await apiService.auth.getProfile();
-          profile.role = profile.role
-            ? profile.role.toString().trim().toLowerCase()
-            : "influencer";
-          setUser(profile);
-        } catch {
+          if (profile) {
+            profile.role = profile.role
+              ? profile.role.toString().trim().toLowerCase()
+              : "influencer";
+            setUser(profile);
+          }
+        } catch (err) {
+          console.error("Failed to fetch profile:", err);
           removeToken();
           setUser(null);
         }
       }
       setIsInitializing(false);
     };
+
     initializeAuth();
   }, []);
 
+  // Login with Google token
   const loginWithToken = async (token) => {
     setToken(token);
     try {
       const profile = await apiService.auth.getProfile();
-      profile.role = profile.role
-        ? profile.role.toString().trim().toLowerCase()
-        : "influencer";
-      setUser(profile);
+      if (profile) {
+        profile.role = profile.role
+          ? profile.role.toString().trim().toLowerCase()
+          : "influencer";
+        setUser(profile);
+      }
     } catch (err) {
       console.error("Failed to fetch profile after Google login:", err);
+      removeToken();
+      setUser(null);
     }
   };
 
+  // Normal login
   const login = async (email, password, userType = null) => {
     setIsLoading(true);
     try {
       const response = await apiService.auth.login({ email, password, userType });
-      const token = response.token;
+      const token = response?.token;
       if (token) setToken(token);
-      const loggedInUser = response.user || response;
-      loggedInUser.role = loggedInUser.role
-        ? loggedInUser.role.toString().trim().toLowerCase()
-        : "influencer";
-      setUser(loggedInUser);
+
+      const loggedInUser = response?.user || response;
+      if (loggedInUser) {
+        loggedInUser.role = loggedInUser.role
+          ? loggedInUser.role.toString().trim().toLowerCase()
+          : "influencer";
+        setUser(loggedInUser);
+      }
+
       return response;
     } catch (err) {
       console.error("Login error:", err);
@@ -62,17 +77,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Signup
   const signup = async (formData) => {
     setIsLoading(true);
     try {
       const response = await apiService.auth.register(formData);
-      const token = response.token;
+      const token = response?.token;
       if (token) setToken(token);
-      const registeredUser = response.user || response;
-      registeredUser.role = registeredUser.role
-        ? registeredUser.role.toString().trim().toLowerCase()
-        : "influencer";
-      setUser(registeredUser);
+
+      const registeredUser = response?.user || response;
+      if (registeredUser) {
+        registeredUser.role = registeredUser.role
+          ? registeredUser.role.toString().trim().toLowerCase()
+          : "influencer";
+        setUser(registeredUser);
+      }
+
       return response;
     } catch (err) {
       console.error("Signup error:", err);
@@ -82,6 +102,7 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Logout
   const logout = async () => {
     setIsLoading(true);
     try {
@@ -112,6 +133,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// Custom hook
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
