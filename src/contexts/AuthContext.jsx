@@ -9,30 +9,23 @@ export function AuthProvider({ children }) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   // ------------------------------------------
-  // INITIALIZE AUTH ON PAGE REFRESH
+  // INITIALIZE AUTH ON PAGE LOAD / REFRESH
   // ------------------------------------------
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
-
       if (token) {
         setToken(token);
-
         try {
-          const userData = await apiService.auth.getProfile();
-
-          // Ensure role exists
-          userData.role = userData.role
-            ? userData.role.toString().trim().toLowerCase()
-            : "influencer";
-
-          setUser(userData);
+          const profile = await apiService.auth.getProfile();
+          profile.role = profile.role ? profile.role.toString().trim().toLowerCase() : "influencer";
+          setUser(profile);
         } catch (err) {
+          console.error("Failed to fetch profile on initialization:", err);
           removeToken();
           setUser(null);
         }
       }
-
       setIsInitializing(false);
     };
 
@@ -40,21 +33,21 @@ export function AuthProvider({ children }) {
   }, []);
 
   // ------------------------------------------
-  // GOOGLE LOGIN TOKEN
+  // LOGIN WITH GOOGLE TOKEN
   // ------------------------------------------
   const loginWithToken = async (token) => {
+    if (!token) throw new Error("Token is required for loginWithToken");
     setToken(token);
 
     try {
       const profile = await apiService.auth.getProfile();
-
-      profile.role = profile.role
-        ? profile.role.toString().trim().toLowerCase()
-        : "influencer";
-
+      profile.role = profile.role ? profile.role.toString().trim().toLowerCase() : "influencer";
       setUser(profile);
     } catch (err) {
       console.error("Failed to fetch profile after Google login:", err);
+      removeToken();
+      setUser(null);
+      throw err;
     }
   };
 
@@ -63,28 +56,18 @@ export function AuthProvider({ children }) {
   // ------------------------------------------
   const login = async (email, password, userType = null) => {
     setIsLoading(true);
-
     try {
-      const response = await apiService.auth.login({
-        email,
-        password,
-        userType,
-      });
-
+      const response = await apiService.auth.login({ email, password, userType });
       const token = response.token;
       if (token) setToken(token);
 
       const loggedInUser = response.user || response;
-
-      loggedInUser.role = loggedInUser.role
-        ? loggedInUser.role.toString().trim().toLowerCase()
-        : "influencer";
-
+      loggedInUser.role = loggedInUser.role ? loggedInUser.role.toString().trim().toLowerCase() : "influencer";
       setUser(loggedInUser);
       return response;
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
+    } catch (err) {
+      console.error("Login error:", err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -95,24 +78,18 @@ export function AuthProvider({ children }) {
   // ------------------------------------------
   const signup = async (formData) => {
     setIsLoading(true);
-
     try {
       const response = await apiService.auth.register(formData);
-
       const token = response.token;
       if (token) setToken(token);
 
       const registeredUser = response.user || response;
-
-      registeredUser.role = registeredUser.role
-        ? registeredUser.role.toString().trim().toLowerCase()
-        : "influencer";
-
+      registeredUser.role = registeredUser.role ? registeredUser.role.toString().trim().toLowerCase() : "influencer";
       setUser(registeredUser);
       return response;
-    } catch (error) {
-      console.error("Signup error:", error);
-      throw error;
+    } catch (err) {
+      console.error("Signup error:", err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -151,6 +128,9 @@ export function AuthProvider({ children }) {
   );
 }
 
+// ------------------------------------------
+// HOOK FOR USING AUTH
+// ------------------------------------------
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
