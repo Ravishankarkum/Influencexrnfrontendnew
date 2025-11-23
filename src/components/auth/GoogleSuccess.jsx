@@ -12,11 +12,11 @@ export default function GoogleSuccess() {
 
     if (token) {
       loginWithToken(token);
-      navigate("/");
+      navigate("/", { replace: true });
     } else {
-      navigate("/login");
+      navigate("/login?error=MissingToken", { replace: true });
     }
   }, []);
 
-  return <div>Processing Google Login...</div>;
+  return <div style={{ padding: 20 }}>Processing Google Login...</div>;
 }
