@@ -8,21 +8,19 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // ------------------------------------------
-  // INITIALIZE AUTH ON PAGE REFRESH
-  // ------------------------------------------
+  // Initialize auth on page refresh
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
       if (token) {
         setToken(token);
         try {
-          const userData = await apiService.auth.getProfile();
-          userData.role = userData.role
-            ? userData.role.toString().trim().toLowerCase()
+          const profile = await apiService.auth.getProfile();
+          profile.role = profile.role
+            ? profile.role.toString().trim().toLowerCase()
             : "influencer";
-          setUser(userData);
-        } catch (err) {
+          setUser(profile);
+        } catch {
           removeToken();
           setUser(null);
         }
@@ -32,9 +30,6 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  // ------------------------------------------
-  // GOOGLE LOGIN TOKEN
-  // ------------------------------------------
   const loginWithToken = async (token) => {
     setToken(token);
     try {
@@ -48,9 +43,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // ------------------------------------------
-  // NORMAL LOGIN
-  // ------------------------------------------
   const login = async (email, password, userType = null) => {
     setIsLoading(true);
     try {
@@ -65,17 +57,14 @@ export function AuthProvider({ children }) {
 
       setUser(loggedInUser);
       return response;
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
+    } catch (err) {
+      console.error("Login error:", err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // ------------------------------------------
-  // SIGNUP
-  // ------------------------------------------
   const signup = async (formData) => {
     setIsLoading(true);
     try {
@@ -90,17 +79,14 @@ export function AuthProvider({ children }) {
 
       setUser(registeredUser);
       return response;
-    } catch (error) {
-      console.error("Signup error:", error);
-      throw error;
+    } catch (err) {
+      console.error("Signup error:", err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // ------------------------------------------
-  // LOGOUT
-  // ------------------------------------------
   const logout = async () => {
     setIsLoading(true);
     try {
