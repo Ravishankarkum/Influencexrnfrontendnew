@@ -8,9 +8,6 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // ------------------------------------------
-  // Initialize auth on page refresh
-  // ------------------------------------------
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
@@ -32,9 +29,6 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  // ------------------------------------------
-  // Login with Google token
-  // ------------------------------------------
   const loginWithToken = async (token) => {
     setToken(token);
     try {
@@ -48,9 +42,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // ------------------------------------------
-  // Normal login
-  // ------------------------------------------
   const login = async (email, password, userType = null) => {
     setIsLoading(true);
     try {
@@ -71,9 +62,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // ------------------------------------------
-  // Signup
-  // ------------------------------------------
   const signup = async (formData) => {
     setIsLoading(true);
     try {
@@ -94,9 +82,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // ------------------------------------------
-  // Logout
-  // ------------------------------------------
   const logout = async () => {
     setIsLoading(true);
     try {
