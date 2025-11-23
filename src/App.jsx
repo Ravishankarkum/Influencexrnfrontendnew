@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { Analytics } from "./components/analytics/Analytics";
 import { LoginForm } from "./components/auth/LoginForm";
@@ -23,21 +22,27 @@ import { Sidebar } from "./components/layout/Sidebar";
 import { InfluencerProfile } from "./components/profile/InfluencerProfile";
 import { Settings } from "./components/settings/Settings";
 import { HelpSupport } from "./components/Support/HelpSupport";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
-// --- Role helpers ---
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import GoogleSuccess from "./components/auth/GoogleSuccess";
+
+// --------------------------------------
+// ROLE HELPERS
+// --------------------------------------
 const isBrandUser = (user) => {
   if (!user || !user.role) return false;
-  return user.role.toString().trim().toLowerCase() === "brand";
+  return user.role.trim().toLowerCase() === "brand";
 };
 
 const isInfluencerUser = (user) => {
   if (!user || !user.role) return true;
-  const r = user.role.toString().trim().toLowerCase();
+  const r = user.role.trim().toLowerCase();
   return r === "influencer" || r === "admin";
 };
 
-// --- Main app content ---
+// --------------------------------------
+// MAIN APP CONTENT
+// --------------------------------------
 function AppContent() {
   const { user, isInitializing } = useAuth();
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -56,6 +61,9 @@ function AppContent() {
 
   if (isInitializing) return <PageLoader />;
 
+  // --------------------
+  // PUBLIC LANDING PAGE
+  // --------------------
   if (!user && !showLogin && !showSignup) {
     return (
       <div>
@@ -92,6 +100,9 @@ function AppContent() {
     );
   }
 
+  // --------------------
+  // LOGGED IN USER UI
+  // --------------------
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const renderContent = () => {
@@ -156,19 +167,25 @@ function AppContent() {
   );
 }
 
-// --- FINAL APP (Google OAuth + Routing + AuthProvider) ---
+// --------------------------------------
+// FINAL APP (NO GoogleOAuthProvider needed)
+// --------------------------------------
 function App() {
   return (
-    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
-      <ErrorBoundary>
-        <AuthProvider>
-          <Routes>
-            <Route path="/apply/:campaignId" element={<ApplyForm />} />
-            <Route path="*" element={<AppContent />} />
-          </Routes>
-        </AuthProvider>
-      </ErrorBoundary>
-    </GoogleOAuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Routes>
+          {/* Route where backend redirects after Google login */}
+          <Route path="/google-success" element={<GoogleSuccess />} />
+
+          {/* Public route */}
+          <Route path="/apply/:campaignId" element={<ApplyForm />} />
+
+          {/* Everything else */}
+          <Route path="*" element={<AppContent />} />
+        </Routes>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
