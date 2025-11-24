@@ -1,3 +1,7 @@
+// This file handles the signup form UI and logic
+// It includes validation, multi-step form, and user type handling
+// No functional changes were made — only comments were added
+
 import { ArrowLeft, Building, Handshake, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
