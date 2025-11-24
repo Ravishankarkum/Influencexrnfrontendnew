@@ -3,6 +3,8 @@ import { Calendar, Users, DollarSign, Eye, Edit, Trash2, Play, Pause, BarChart3 
 import { CampaignStatus } from '../../types';
 
 export function MyCampaigns() {
+
+  // Local state storing all campaigns (dummy data for now)
   const [campaigns, setCampaigns] = useState([
     {
       id: '1',
@@ -48,6 +50,7 @@ export function MyCampaigns() {
     }
   ]);
 
+  // Returns Tailwind color classes based on campaign status
   const getStatusColor = (status) => {
     switch (status) {
       case CampaignStatus.ACTIVE:
@@ -61,6 +64,7 @@ export function MyCampaigns() {
     }
   };
 
+  // Toggle campaign status between ACTIVE and PAUSED
   const toggleCampaignStatus = (campaignId) => {
     setCampaigns(campaigns.map(campaign => {
       if (campaign.id === campaignId) {
@@ -75,11 +79,15 @@ export function MyCampaigns() {
 
   return (
     <div className="space-y-6">
+      
+      {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">My Campaigns</h2>
           <p className="text-gray-600">Manage and track your active campaigns</p>
         </div>
+
+        {/* Filter Dropdown (future functionality) */}
         <div className="flex gap-3">
           <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
             <option value="all">All Campaigns</option>
@@ -90,16 +98,25 @@ export function MyCampaigns() {
         </div>
       </div>
 
+      {/* Campaign Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {campaigns.map((campaign) => (
+
+          // Single Campaign Card
           <div key={campaign.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
+            
+            {/* Card Header: Title + Status + Action Buttons */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{campaign.campaign_title}</h3>
+
+                {/* Status Badge */}
                 <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(campaign.status)}`}>
                   {campaign.status}
                 </span>
               </div>
+
+              {/* Action Buttons (pause/play, edit, delete) */}
               <div className="flex gap-2">
                 <button
                   onClick={() => toggleCampaignStatus(campaign.id)}
@@ -116,8 +133,10 @@ export function MyCampaigns() {
               </div>
             </div>
 
+            {/* Short Description */}
             <p className="text-gray-600 text-sm mb-4 line-clamp-2">{campaign.description}</p>
 
+            {/* Applications + Selected Influencers Summary */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="text-center p-3 bg-gray-50 rounded-lg">
                 <div className="text-lg font-bold text-gray-900">{campaign.applications}</div>
@@ -129,6 +148,7 @@ export function MyCampaigns() {
               </div>
             </div>
 
+            {/* Campaign Metrics */}
             <div className="space-y-2 mb-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Budget:</span>
@@ -144,6 +164,7 @@ export function MyCampaigns() {
               </div>
             </div>
 
+            {/* Footer Buttons: Analytics + View */}
             <div className="flex gap-2">
               <button className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-blue-600 transition-all flex items-center justify-center gap-2">
                 <BarChart3 size={16} />
@@ -153,7 +174,9 @@ export function MyCampaigns() {
                 <Eye size={16} />
               </button>
             </div>
+
           </div>
+
         ))}
       </div>
     </div>
