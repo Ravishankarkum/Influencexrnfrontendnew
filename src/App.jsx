@@ -21,7 +21,7 @@ import { Header } from "./components/layout/Header";
 import { Sidebar } from "./components/layout/Sidebar";
 import { InfluencerProfile } from "./components/profile/InfluencerProfile";
 import { Settings } from "./components/settings/Settings";
-import { HelpSupport } from "./components/Support/HelpSupport";
+import { HelpSupport } from "./components/support/HelpSupport";
 
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import GoogleSuccess from "./components/auth/GoogleSuccess";
