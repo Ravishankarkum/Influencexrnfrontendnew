@@ -2,17 +2,20 @@ import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
 
 export function CreateCampaign() {
+  // Form state to store all campaign inputs
   const [formData, setFormData] = useState({
     campaign_title: '',
     description: '',
     category: '',
     budget: '',
     ended_at: '',
-    requirements: ['']
+    requirements: [''] // starts with one empty requirement field
   });
 
+  // Predefined category options
   const categories = ['Fashion', 'Technology', 'Health & Fitness', 'Food', 'Travel', 'Lifestyle', 'Beauty', 'Gaming'];
 
+  // Generic input handler for all simple fields
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -20,6 +23,7 @@ export function CreateCampaign() {
     }));
   };
 
+  // Add new requirement input field
   const addRequirement = () => {
     setFormData(prev => ({
       ...prev,
@@ -27,13 +31,15 @@ export function CreateCampaign() {
     }));
   };
 
+  // Update a requirement by index
   const updateRequirement = (index, value) => {
     setFormData(prev => ({
       ...prev,
-      requirements: prev.requirements.map((req, i) => i === index ? value : req)
+      requirements: prev.requirements.map((req, i) => (i === index ? value : req))
     }));
   };
 
+  // Remove requirement at specific index
   const removeRequirement = (index) => {
     setFormData(prev => ({
       ...prev,
@@ -41,25 +47,30 @@ export function CreateCampaign() {
     }));
   };
 
+  // Form submission handler
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Campaign created:', formData);
-    // Handle campaign creation
+    // TODO: Send data to backend API
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {/* Page title & description */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Create New Campaign</h2>
         <p className="text-gray-600">Launch a new influencer marketing campaign</p>
       </div>
 
+      {/* Main Form */}
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 space-y-6">
+        
+        {/* Basic details inputs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Campaign Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Campaign Title
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Campaign Title</label>
             <input
               type="text"
               value={formData.campaign_title}
@@ -70,10 +81,9 @@ export function CreateCampaign() {
             />
           </div>
 
+          {/* Category Dropdown */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
             <select
               value={formData.category}
               onChange={(e) => handleInputChange('category', e.target.value)}
@@ -87,10 +97,9 @@ export function CreateCampaign() {
             </select>
           </div>
 
+          {/* Budget input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Budget ($)
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Budget ($)</label>
             <input
               type="number"
               value={formData.budget}
@@ -101,10 +110,9 @@ export function CreateCampaign() {
             />
           </div>
 
+          {/* End Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              End Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
             <input
               type="date"
               value={formData.ended_at}
@@ -115,10 +123,9 @@ export function CreateCampaign() {
           </div>
         </div>
 
+        {/* Description textarea */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
           <textarea
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
@@ -129,11 +136,12 @@ export function CreateCampaign() {
           />
         </div>
 
+        {/* Requirements Section */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Requirements
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+
           <div className="space-y-3">
+            {/* Dynamic list of requirement fields */}
             {formData.requirements.map((requirement, index) => (
               <div key={index} className="flex gap-3">
                 <input
@@ -143,6 +151,8 @@ export function CreateCampaign() {
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   placeholder="Enter requirement (e.g., Instagram post, 50K+ followers)"
                 />
+
+                {/* Remove requirement button (only shown if more than 1 exists) */}
                 {formData.requirements.length > 1 && (
                   <button
                     type="button"
@@ -154,6 +164,8 @@ export function CreateCampaign() {
                 )}
               </div>
             ))}
+
+            {/* Add new requirement button */}
             <button
               type="button"
               onClick={addRequirement}
@@ -165,6 +177,7 @@ export function CreateCampaign() {
           </div>
         </div>
 
+        {/* Submit + Draft buttons */}
         <div className="flex gap-4 pt-6">
           <button
             type="submit"
@@ -172,6 +185,7 @@ export function CreateCampaign() {
           >
             Create Campaign
           </button>
+
           <button
             type="button"
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
