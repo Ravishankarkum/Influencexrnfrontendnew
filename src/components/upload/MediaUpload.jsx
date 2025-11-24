@@ -1,13 +1,18 @@
+// MediaUpload Component: Handles drag-and-drop + manual file uploads with UI preview.
+// Supports images/videos, validates file size & type, uploads to backend, and returns file list.
+
 import { Camera, FileText, Image, Upload, Video, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { API_CONFIG, createApiUrl } from '../../config/api.js';
 
+// Main upload component
 export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFiles = 5, existingFiles = [] }) {
-  const [dragActive, setDragActive] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState(existingFiles);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef(null);
+  const [dragActive, setDragActive] = useState(false);   // For drag-over UI highlight
+  const [uploadedFiles, setUploadedFiles] = useState(existingFiles);  // Store uploaded files
+  const [uploading, setUploading] = useState(false);     // Upload progress state
+  const fileInputRef = useRef(null);                     // Hidden input reference
 
+  // Handle drag events for UI highlight
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -18,6 +23,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
     }
   };
 
+  // Handle file drop
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -27,6 +33,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
     }
   };
 
+  // Handle file selection via input
   const handleChange = (e) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
@@ -34,7 +41,9 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
     }
   };
 
+  // Main file handler (validation + upload)
   const handleFiles = async (files) => {
+    // Prevent exceeding maximum allowed files
     if (uploadedFiles.length + files.length > maxFiles) {
       alert(`Maximum ${maxFiles} files allowed`);
       return;
@@ -43,16 +52,17 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
     setUploading(true);
     const newFiles = [];
 
+    // Process each file
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // Validate file type
+      // Validate file type based on acceptedTypes
       if (!file.type.match(acceptedTypes.replace(/\*/g, ''))) {
         alert(`File type ${file.type} not supported`);
         continue;
       }
 
-      // Validate file size (max 10MB)
+      // Validate file size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
         alert(`File ${file.name} is too large. Maximum size is 10MB`);
         continue;
@@ -62,19 +72,21 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
       formData.append("media", file);
 
       try {
-        // Use the API configuration instead of hardcoded URL
+        // Upload to backend using config URL
         const uploadUrl = createApiUrl(API_CONFIG.ENDPOINTS.UPLOADS.BASE);
         const response = await fetch(uploadUrl, {
           method: "POST",
           body: formData,
         });
 
+        // API error handling
         if (!response.ok) {
           throw new Error("Upload failed");
         }
 
         const data = await response.json();
 
+        // Prepare uploaded file object for UI display
         const uploadedFile = {
           id: Date.now() + i,
           name: file.name,
@@ -90,15 +102,18 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
       }
     }
 
+    // Update local state
     const updatedFiles = [...uploadedFiles, ...newFiles];
     setUploadedFiles(updatedFiles);
     setUploading(false);
 
+    // Trigger callback to parent if provided
     if (onUpload) {
       onUpload(updatedFiles);
     }
   };
 
+  // Remove file from the preview list
   const removeFile = (fileId) => {
     const updatedFiles = uploadedFiles.filter(file => file.id !== fileId);
     setUploadedFiles(updatedFiles);
@@ -107,12 +122,14 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
     }
   };
 
+  // Select icon based on file type
   const getFileIcon = (fileType) => {
     if (fileType.startsWith('image/')) return <Image size={20} />;
     if (fileType.startsWith('video/')) return <Video size={20} />;
     return <FileText size={20} />;
   };
 
+  // Convert file size to readable format
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -123,7 +140,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
 
   return (
     <div className="space-y-4">
-      {/* Upload Area */}
+      {/* Upload Drop Zone */}
       <div
         className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
           dragActive
@@ -135,6 +152,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
+        {/* Hidden File Input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -144,6 +162,7 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
 
+        {/* Upload UI */}
         <div className="space-y-4">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto">
             {uploading ? (
@@ -176,13 +195,16 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
         </div>
       </div>
 
-      {/* Uploaded Files */}
+      {/* Uploaded Files Preview */}
       {uploadedFiles.length > 0 && (
         <div className="space-y-3">
           <h4 className="font-medium text-gray-900">Uploaded Files ({uploadedFiles.length}/{maxFiles})</h4>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {uploadedFiles.map((file) => (
               <div key={file.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                
+                {/* Thumbnail / Icon */}
                 <div className="flex-shrink-0">
                   {file.type.startsWith('image/') ? (
                     <img
@@ -197,17 +219,20 @@ export function MediaUpload({ onUpload, acceptedTypes = "image/*,video/*", maxFi
                   )}
                 </div>
 
+                {/* File Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
                   <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                 </div>
 
+                {/* Remove Button */}
                 <button
                   onClick={() => removeFile(file.id)}
                   className="flex-shrink-0 p-1 text-red-500 hover:text-red-700 transition-colors"
                 >
                   <X size={16} />
                 </button>
+
               </div>
             ))}
           </div>
