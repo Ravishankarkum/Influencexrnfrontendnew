@@ -10,7 +10,7 @@ import { MyCampaigns } from "./components/campaigns/MyCampaigns";
 import { CollaborationManager } from "./components/collaborations/CollaborationManager";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import { PageLoader } from "./components/common/LoadingSpinner";
-import ConnectionTest from "./components/ConnectionTest";
+//import ConnectionTest from "./components/ConnectionTest";
 import BrandDashboard from "./components/dashboard/brand/BrandDashboard";
 import { ApplyForm } from "./components/dashboard/influencer/ApplyForm";
 import { InfluencerDashboard } from "./components/dashboard/influencer/InfluencerDashboard";
