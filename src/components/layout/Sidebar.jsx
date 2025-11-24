@@ -1,3 +1,7 @@
+// Sidebar Component
+// This shows the left menu for brand and influencer dashboards.
+// It loads menu items based on user role and includes support button.
+
 import {
   BarChart3,
   FileText,
