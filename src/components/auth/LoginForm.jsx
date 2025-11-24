@@ -1,3 +1,8 @@
+// This file shows the Login Form.
+// It handles email login, password login, Google login,
+// user type switch (influencer/brand), form validation,
+// and takes user back or to signup.
+
 import { ArrowLeft, Building, Eye, EyeOff, Handshake, Lock, Mail, User } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
