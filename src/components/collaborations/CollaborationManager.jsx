@@ -3,7 +3,11 @@ import { MessageSquare, Calendar, DollarSign, CheckCircle, Clock, XCircle, User,
 import { CollaborationStatus } from '../../types';
 
 export function CollaborationManager() {
+
+  // Track active tab state (All, Pending, Completed, etc.)
   const [activeTab, setActiveTab] = useState('all');
+
+  // Main collaboration list (mock data)
   const [collaborations, setCollaborations] = useState([
     {
       id: '1',
@@ -67,6 +71,7 @@ export function CollaborationManager() {
     }
   ]);
 
+  // Returns appropriate icon depending on collaboration status
   const getStatusIcon = (status) => {
     switch (status) {
       case CollaborationStatus.PENDING:
@@ -84,6 +89,7 @@ export function CollaborationManager() {
     }
   };
 
+  // Returns badge background color depending on status
   const getStatusColor = (status) => {
     switch (status) {
       case CollaborationStatus.PENDING:
@@ -101,11 +107,13 @@ export function CollaborationManager() {
     }
   };
 
+  // Filters collaborations based on active tab selected
   const filteredCollaborations = collaborations.filter(collab => {
     if (activeTab === 'all') return true;
     return collab.status === activeTab;
   });
 
+  // Tabs with counts for UI
   const tabs = [
     { id: 'all', label: 'All', count: collaborations.length },
     { id: CollaborationStatus.PENDING, label: 'Pending', count: collaborations.filter(c => c.status === CollaborationStatus.PENDING).length },
@@ -113,22 +121,32 @@ export function CollaborationManager() {
     { id: CollaborationStatus.COMPLETED, label: 'Completed', count: collaborations.filter(c => c.status === CollaborationStatus.COMPLETED).length }
   ];
 
+  // Updates collaboration status (approve, reject, complete, etc.)
   const updateCollaborationStatus = (id, newStatus) => {
     setCollaborations(collaborations.map(collab => 
       collab.id === id 
-        ? { ...collab, status: newStatus, completed_on: newStatus === CollaborationStatus.COMPLETED ? new Date().toISOString().split('T')[0] : null }
+        ? {
+            ...collab,
+            status: newStatus,
+            // auto-set completion date if status = completed
+            completed_on: newStatus === CollaborationStatus.COMPLETED 
+              ? new Date().toISOString().split('T')[0]
+              : null
+          }
         : collab
     ));
   };
 
   return (
     <div className="space-y-6">
+
+      {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Collaborations</h2>
         <p className="text-gray-600">Manage your brand partnerships and track progress</p>
       </div>
 
-      {/* Tabs */}
+      {/* Status Tabs */}
       <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200">
         <div className="flex space-x-1">
           {tabs.map((tab) => (
@@ -154,19 +172,25 @@ export function CollaborationManager() {
         </div>
       </div>
 
-      {/* Collaborations List */}
+      {/* Collaboration Cards List */}
       <div className="space-y-4">
         {filteredCollaborations.map((collaboration) => (
           <div key={collaboration.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
+
+            {/* Card Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h3 className="text-lg font-semibold text-gray-900">{collaboration.campaign_title}</h3>
+
+                  {/* Status Badge */}
                   <span className={`flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(collaboration.status)}`}>
                     {getStatusIcon(collaboration.status)}
                     {collaboration.status.replace('_', ' ')}
                   </span>
                 </div>
+
+                {/* Brand + Influencer Info */}
                 <div className="flex items-center gap-6 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Building size={16} />
@@ -178,13 +202,17 @@ export function CollaborationManager() {
                   </div>
                 </div>
               </div>
+
+              {/* Deal Amount */}
               <div className="text-right">
                 <div className="text-lg font-bold text-gray-900">${collaboration.deal_amount.toLocaleString()}</div>
                 <div className="text-sm text-gray-600">Deal Amount</div>
               </div>
             </div>
 
+            {/* Deliverables / Timeline / Financial */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              {/* Deliverables */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-gray-700">Deliverables</h4>
                 <ul className="space-y-1">
@@ -196,7 +224,8 @@ export function CollaborationManager() {
                   ))}
                 </ul>
               </div>
-              
+
+              {/* Timeline */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-gray-700">Timeline</h4>
                 <div className="space-y-1">
@@ -214,6 +243,7 @@ export function CollaborationManager() {
                 </div>
               </div>
 
+              {/* Financial Section */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-gray-700">Financial</h4>
                 <div className="space-y-1">
@@ -227,18 +257,23 @@ export function CollaborationManager() {
               </div>
             </div>
 
+            {/* Footer Buttons */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              
+              {/* Messages Count */}
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <MessageSquare size={16} />
                 <span>{collaboration.messages} messages</span>
               </div>
-              
+
+              {/* Action Buttons */}
               <div className="flex gap-2">
                 <button className="px-4 py-2 text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-all flex items-center gap-2">
                   <MessageSquare size={16} />
                   Message
                 </button>
-                
+
+                {/* Pending → Approve / Reject */}
                 {collaboration.status === CollaborationStatus.PENDING && (
                   <>
                     <button
@@ -247,6 +282,7 @@ export function CollaborationManager() {
                     >
                       Approve
                     </button>
+
                     <button
                       onClick={() => updateCollaborationStatus(collaboration.id, CollaborationStatus.REJECTED)}
                       className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
@@ -255,7 +291,8 @@ export function CollaborationManager() {
                     </button>
                   </>
                 )}
-                
+
+                {/* In Progress → Mark Complete */}
                 {collaboration.status === CollaborationStatus.IN_PROGRESS && (
                   <button
                     onClick={() => updateCollaborationStatus(collaboration.id, CollaborationStatus.COMPLETED)}
@@ -270,6 +307,7 @@ export function CollaborationManager() {
         ))}
       </div>
 
+      {/* Empty State */}
       {filteredCollaborations.length === 0 && (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
