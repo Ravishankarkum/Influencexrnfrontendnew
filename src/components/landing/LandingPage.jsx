@@ -1,3 +1,7 @@
+// This page shows the main landing page.
+// It has the hero section, features, how it works, and footer.
+// All text and design are simple and easy to edit later.
+
 import { ArrowRight, Handshake, Play, Shield, Star, TrendingUp, Users } from 'lucide-react';
 
 export function LandingPage({ onGetStarted, onSignUp }) {
