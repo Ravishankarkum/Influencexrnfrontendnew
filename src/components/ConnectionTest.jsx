@@ -1,3 +1,9 @@
+// ConnectionTest Component
+// This component checks if the frontend can successfully
+// communicate with the backend API. It sends a request to
+// the backend root URL and displays the connection status.
+// Useful for debugging API connectivity and CORS issues.
+
 import React, { useState, useEffect } from 'react';
 import { createApiUrl } from '../config/api';
 
