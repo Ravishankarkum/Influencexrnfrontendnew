@@ -1,3 +1,12 @@
+// This file manages global authentication state using React Context.
+// It handles:
+//   • Storing and retrieving JWT tokens
+//   • Auto-loading user profile on page refresh
+//   • Login (normal + Google token login)
+//   • Signup
+//   • Logout
+//   • Providing user + auth functions across the app
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { apiService, getToken, removeToken, setToken } from "../services/api";
 
