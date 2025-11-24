@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { Search, Filter, Users, TrendingUp, MapPin, ExternalLink, Heart, MessageCircle } from 'lucide-react';
 
 export function InfluencerDirectory() {
+  // State for search bar input
   const [searchTerm, setSearchTerm] = useState('');
+  // State for filtering by category
   const [selectedCategory, setSelectedCategory] = useState('all');
+  // State for filtering by visibility tier (premium / standard)
   const [selectedTier, setSelectedTier] = useState('all');
 
+  // Mock influencer list (dummy data simulating backend)
   const mockInfluencers = [
     {
       id: '1',
@@ -73,18 +77,24 @@ export function InfluencerDirectory() {
     }
   ];
 
+  // Dropdown values for filtering
   const categories = ['all', 'Fashion', 'Technology', 'Health & Fitness', 'Food', 'Travel', 'Lifestyle', 'Beauty'];
   const tiers = ['all', 'premium', 'standard'];
 
+  // Filter logic based on search input + selected category + tier
   const filteredInfluencers = mockInfluencers.filter(influencer => {
-    const matchesSearch = influencer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         influencer.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         influencer.bio.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      influencer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      influencer.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      influencer.bio.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesCategory = selectedCategory === 'all' || influencer.category === selectedCategory;
     const matchesTier = selectedTier === 'all' || influencer.visibility_tier === selectedTier;
+
     return matchesSearch && matchesCategory && matchesTier;
   });
 
+  // Format followers as K / M
   const formatFollowers = (count) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(0)}K`;
@@ -93,14 +103,17 @@ export function InfluencerDirectory() {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Find Influencers</h2>
         <p className="text-gray-600">Discover and connect with content creators for your campaigns</p>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search bar + filters container */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <div className="flex flex-col lg:flex-row gap-4">
+          
+          {/* Search Input */}
           <div className="flex-1 relative">
             <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -111,9 +124,12 @@ export function InfluencerDirectory() {
               className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
           </div>
-          
+
+          {/* Category + Tier Filters */}
           <div className="flex items-center gap-3">
             <Filter size={20} className="text-gray-400" />
+
+            {/* Category Filter */}
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -125,7 +141,8 @@ export function InfluencerDirectory() {
                 </option>
               ))}
             </select>
-            
+
+            {/* Tier Filter */}
             <select
               value={selectedTier}
               onChange={(e) => setSelectedTier(e.target.value)}
@@ -141,10 +158,14 @@ export function InfluencerDirectory() {
         </div>
       </div>
 
-      {/* Influencer Grid */}
+      {/* Influencer Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredInfluencers.map((influencer) => (
+          
+          // Individual Influencer Card
           <div key={influencer.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
+            
+            {/* Avatar + Username + Location + Tier */}
             <div className="flex items-start gap-4 mb-4">
               <img
                 src={influencer.avatar}
@@ -154,11 +175,15 @@ export function InfluencerDirectory() {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900">{influencer.name}</h3>
                 <p className="text-purple-600 font-medium">{influencer.username}</p>
+
+                {/* Location */}
                 <div className="flex items-center gap-2 mt-1">
                   <MapPin size={14} className="text-gray-400" />
                   <span className="text-sm text-gray-600">{influencer.city}</span>
                 </div>
               </div>
+
+              {/* Visibility Tier Badge */}
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                 influencer.visibility_tier === 'premium' 
                   ? 'bg-purple-100 text-purple-800' 
@@ -168,8 +193,10 @@ export function InfluencerDirectory() {
               </span>
             </div>
 
+            {/* Short Bio */}
             <p className="text-gray-600 text-sm mb-4 line-clamp-2">{influencer.bio}</p>
 
+            {/* Stats: Followers, Engagement, Posts */}
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="text-center p-3 bg-gray-50 rounded-lg">
                 <div className="text-lg font-bold text-gray-900">{formatFollowers(influencer.followers)}</div>
@@ -185,6 +212,7 @@ export function InfluencerDirectory() {
               </div>
             </div>
 
+            {/* Additional Metrics */}
             <div className="space-y-2 mb-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Category:</span>
@@ -200,6 +228,7 @@ export function InfluencerDirectory() {
               </div>
             </div>
 
+            {/* Portfolio Links (limited to 2) */}
             <div className="flex gap-2 mb-4">
               {influencer.portfolio_links.slice(0, 2).map((link, index) => (
                 <a
@@ -215,6 +244,7 @@ export function InfluencerDirectory() {
               ))}
             </div>
 
+            {/* Contact + Favorite Button */}
             <div className="flex gap-2">
               <button className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-blue-600 transition-all">
                 Contact
@@ -227,6 +257,7 @@ export function InfluencerDirectory() {
         ))}
       </div>
 
+      {/* No results message */}
       {filteredInfluencers.length === 0 && (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
