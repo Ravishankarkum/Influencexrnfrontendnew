@@ -1,3 +1,6 @@
+// Influencer Profile Component – handles viewing and editing user profile,
+// including basic info, bio, links, stats, and media uploads. 
+
 import { Camera, Edit, ExternalLink, MapPin, Plus, Save, TrendingUp, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { MediaUpload } from '../upload/MediaUpload';
