@@ -1,3 +1,7 @@
+// Header Component
+// This shows the top bar with menu button, help button,
+// notifications, user info, and logout option.
+
 import { Bell, HelpCircle, LogOut, Menu, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
