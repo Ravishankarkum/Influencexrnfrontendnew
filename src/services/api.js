@@ -230,7 +230,7 @@ export const apiService = {
   },
 
   // ========================
-  // Notifications
+  // Notifications APIs
   // ========================
   notifications: {
     getAll: async () => {
@@ -257,7 +257,7 @@ export const apiService = {
   },
 
   // ========================
-  // Uploads
+  // File Upload APIs
   // ========================
   uploads: {
     uploadProfile: async (file) => {
