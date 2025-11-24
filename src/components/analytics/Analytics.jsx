@@ -1,3 +1,7 @@
+// Analytics Component
+// This page shows reach, engagement, ROI, top influencers, and campaign stats.
+// All data is sample data for UI display and testing.
+
 import { BarChart3, DollarSign, Eye, Heart, MessageCircle, TrendingUp, Users } from 'lucide-react';
 import { useState } from 'react';
 
