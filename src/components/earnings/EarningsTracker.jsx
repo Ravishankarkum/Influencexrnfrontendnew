@@ -1,3 +1,8 @@
+// EarningsTracker Component
+// This component shows total earnings, monthly trends, payout history,
+// and payment methods for the user. It also lets the user filter payouts
+// by time period and export reports.
+
 import React, { useState } from 'react';
 import { DollarSign, TrendingUp, Calendar, Download, CreditCard, Wallet } from 'lucide-react';
 import { PayoutStatus } from '../../types';
